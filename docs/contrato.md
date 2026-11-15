@@ -1,7 +1,7 @@
 # Contrato de integración Java ↔ SWI-Prolog
 
-> **Estado: BORRADOR v1 — pendiente de aprobación por Henry, Erick y Rocío.**
-> Ningún punto de este documento es definitivo hasta que los tres lo aprueben.
+> **Estado: v1 APROBADA** el 15/11/2026 por Henry, Erick y Rocío.
+> **v1.1 PROPUESTA — pendiente de aprobación:** secciones 4.1, 12 y 13, marcadas con 🟡.
 > Los cambios posteriores se acuerdan entre los tres y se registran en la sección 11.
 
 Convención de estados usada en todo el documento:
@@ -21,6 +21,8 @@ PanelEntrada → ValidadorEntrada → NormalizadorExpresion → ServicioIntegral
    → swipl base_conocimiento/puente.pl → ParserRespuesta
    → FormateadorResultado → PanelResultado
 ```
+
+🟡 Propuesta v1.1 (sección 13): `NormalizadorExpresion` se invoca dentro de `ServicioProlog`, no desde el controlador.
 
 ## 2. Ubicación de los archivos Prolog
 
@@ -80,6 +82,22 @@ Limitaciones conocidas de `integral/3` (devuelve `false`): `x*k` (constante a la
 | Logaritmo natural como `ln` | `log(x)` → `ln(x)` |
 | Exponente negativo entre paréntesis | `x^-1` → `x^(-1)` (sin paréntesis es error de sintaxis en Prolog) |
 | Punto decimal | `0.5` |
+
+### 4.1 🟡 Propuesta v1.1: reglas adicionales de normalización (pendiente de confirmación de Erick)
+
+La validación de la interfaz (sección 12) acepta las formas siguientes. Se comprobó con SWI-Prolog 10.1.13 que **Prolog no puede leerlas tal como se escriben** (`syntax_error(operator_expected)`), por lo que el normalizador debe transformarlas:
+
+| Forma aceptada por la validación | Problema en Prolog | Normalización propuesta |
+|---|---|---|
+| `2*-x`, `x/-2`, `x+-1`, `x--1`, `2^-x`, `x^-1` | Prolog lee `*-`, `/-`, `+-`, `--`, `^-` como un solo operador desconocido | Encerrar el negativo entre paréntesis: `2*(-x)`, `x/(-2)`, `x+(-1)`, `x-(-1)`, `2^(-x)`, `x^(-1)` |
+| `.5` | Un número no puede empezar con punto | `0.5` |
+| `2.` | Un número no puede terminar con punto | `2` o `2.0` |
+| `2sin(x)`, `3e^x` | Multiplicación implícita con función o constante | `2*sin(x)`, `3*e^x` |
+| `x(x+1)`, `(x+1)(x-1)`, `(x+1)x`, `x sin(x)` | Multiplicación implícita sin número | `x*(x+1)`, `(x+1)*(x-1)`, `(x+1)*x`, `x*sin(x)` |
+| `arcsin`, `arccos`, `arctan` | Nombres del PDF que Prolog no conoce | `asin`, `acos`, `atan` |
+| `arcsinh`, `arccosh`, `arctanh`, `sh` | Nombres del PDF que Prolog no conoce | `asinh`, `acosh`, `atanh`, `sinh` |
+
+Formas que Prolog sí lee sin cambios: `-x`, `(-x+1)`, `-sin(x)`, `x^2.5`, `0.5*x`.
 
 ## 5. Invocación
 
@@ -171,4 +189,62 @@ Las pruebas que necesitan `swipl` deben **omitirse** (no fallar) cuando `swipl` 
 
 | Versión | Fecha | Cambio | Aprobado por |
 |---|---|---|---|
-| v1 (borrador) | 15/11/2026 | Primera propuesta basada en el código real de `base_conocimiento` (`1de3224`). | Pendiente |
+| v1 | 15/11/2026 | Primera versión basada en el código real de `base_conocimiento` (`1de3224`). | Henry, Erick y Rocío |
+| v1.1 🟡 | 15/11/2026 | Normalización adicional (4.1), validación de la entrada (12) y responsable de normalizar (13). | Pendiente |
+
+## 12. 🟡 Propuesta v1.1: validación de la entrada (implementada por Rocío)
+
+`integrales.validacion.ValidadorEntrada` revisa el **texto crudo** antes de enviarlo. **No normaliza, no construye un árbol de la expresión y no comprueba el dominio matemático.** Recorre el texto una vez, dividiéndolo en piezas (números, palabras, operadores y paréntesis), y revisa cada pieza respecto de la anterior.
+
+### 12.1 Expresión
+
+| Regla | Se rechaza, por ejemplo |
+|---|---|
+| E1. No vacía | `""`, `"   "` |
+| E2. Máximo 200 caracteres (sin contar espacios exteriores) | 201 caracteres |
+| E3. Solo dígitos, letras, espacios y `+ - * / ^ ( ) .` | `x=2`, `√x`, `x²` |
+| E4. La coma tiene un mensaje propio (use punto decimal) | `1,5*x` |
+| E5. Números con a lo sumo un punto | `1..2`, `1.2.3`, `.` |
+| E6. Palabras permitidas: `x`, `e` y las funciones de la lista blanca (sin distinguir mayúsculas). `u` y `v` se rechazan | `y+1`, `foo(x)`, `sqrt(x)`, `u(x)` |
+| E7. Palabras pegadas: mensaje con sugerencia | `sinx` → "¿Quiso escribir sin(x)?" |
+| E8. Toda función va seguida de `(` | `sin x`, `ln^2` |
+| E9. Paréntesis balanceados | `(x+1`, `x+1)` |
+| E10. Sin paréntesis vacíos | `sin()`, `()` |
+| E11. Sin operadores consecutivos, salvo un `-` unario después de un operador | `x**2`, `x+*2`, `--x` |
+| E12. No empieza (ni sigue a `(`) con `+ * / ^`; el `-` inicial sí se permite | `*x`, `(+x)` |
+| E13. No termina con operador ni hay operador antes de `)` | `3*x^`, `(x+)` |
+| E14. Un número no puede seguir sin operador a otro valor (sería ambiguo) | `2 3`, `x2`, `(x+1)2` |
+
+**Lista blanca de funciones:** `sin, sen, cos, tan, asin, acos, atan, sinh, cosh, tanh, asinh, acosh, atanh, exp, log, ln` y los alias del PDF `arcsin, arccos, arctan, arcsinh, arccosh, arctanh, sh` (su normalización está pendiente de confirmar por Erick, sección 4.1).
+
+**Se aceptan** (Erick las normaliza, sección 4.1): signo negativo unario (`-x`, `2*-x`, `x/-2`, `2^-x`), multiplicación implícita (`3x`, `2(x+1)`, `2sin(x)`, `x(x+1)`, `(x+1)(x-1)`) y decimales `.5` y `2.`.
+
+### 12.2 Límites a y b
+
+| Regla | Se rechaza, por ejemplo |
+|---|---|
+| L1. Obligatorio | `""` |
+| L2. La coma tiene un mensaje propio | `1,5` |
+| L3. Formato `[+-]dígitos[.dígitos][e±dígitos]` (también `.5` y `2.`) | `abc`, `NaN`, `Infinity`, `0x10`, `2d`, `pi` |
+| L4. Finito | `1e400` |
+| L5. \|valor\| ≤ 1 000 000 | `1e7` |
+
+- **L5 es una decisión provisional del proyecto, no un requisito del PDF.** Evita desbordamientos al evaluar potencias y exponenciales, y puede ajustarse.
+- **a = b y a > b son válidos.** El PDF no exige a < b, y ∫ₐᵇ f = −∫ᵦᵃ f está bien definida. La interfaz muestra una nota cuando el resultado es negativo.
+
+### 12.3 Lo que la validación no hace
+
+| Responsable | Tarea |
+|---|---|
+| Erick (`NormalizadorExpresion`) | Transformar el texto validado a la forma que lee Prolog (secciones 4 y 4.1). |
+| Henry (base de conocimiento) | Decidir si la integral está soportada (`NO_SOPORTADA`), el dominio y las singularidades (`DOMINIO`), y los errores de sintaxis que se escapen (`SINTAXIS`). |
+
+Por ejemplo, `x^(-1)` con a = −1 y b = 1 pasa la validación porque está bien escrita; la base de conocimiento debe responder `DOMINIO`.
+
+## 13. 🟡 Propuesta v1.1: responsable de normalizar
+
+`ServicioProlog` llama internamente a `NormalizadorExpresion` antes de invocar `swipl`. Así:
+
+- El controlador construye `SolicitudIntegral` con el texto validado **sin normalizar**.
+- `ServicioMock` no necesita normalizar.
+- El controlador solo depende de la interfaz `ServicioIntegrales`.
