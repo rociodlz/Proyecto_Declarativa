@@ -1,0 +1,21 @@
+# Maven
+target/
+dependency-reduced-pom.xml
+
+# Compilados y salidas
+*.class
+out/
+*.log
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+.settings/
+.classpath
+.project
+nbproject/private/
+
+# Sistema operativo
+Thumbs.db
+.DS_Store
