@@ -1,7 +1,7 @@
 # Contrato de integración Java ↔ SWI-Prolog
 
 > **Estado: v1 APROBADA** el 15/11/2026 por Henry, Erick y Rocío.
-> **v1.1 PROPUESTA — pendiente de aprobación:** secciones 4.1, 12 y 13, marcadas con 🟡.
+> **v1.1 PROPUESTA — pendiente de aprobación:** secciones 4.1, 12, 13 y 14, marcadas con 🟡.
 > Los cambios posteriores se acuerdan entre los tres y se registran en la sección 11.
 
 Convención de estados usada en todo el documento:
@@ -190,7 +190,7 @@ Las pruebas que necesitan `swipl` deben **omitirse** (no fallar) cuando `swipl` 
 | Versión | Fecha | Cambio | Aprobado por |
 |---|---|---|---|
 | v1 | 15/11/2026 | Primera versión basada en el código real de `base_conocimiento` (`1de3224`). | Henry, Erick y Rocío |
-| v1.1 🟡 | 15/11/2026 | Normalización adicional (4.1), validación de la entrada (12) y responsable de normalizar (13). | Pendiente |
+| v1.1 🟡 | 15/11/2026 | Normalización adicional (4.1), validación de la entrada (12), responsable de normalizar (13) e integración de la interfaz con `Main` (14). | Pendiente |
 
 ## 12. 🟡 Propuesta v1.1: validación de la entrada (implementada por Rocío)
 
@@ -248,3 +248,35 @@ Por ejemplo, `x^(-1)` con a = −1 y b = 1 pasa la validación porque está bien
 - El controlador construye `SolicitudIntegral` con el texto validado **sin normalizar**.
 - `ServicioMock` no necesita normalizar.
 - El controlador solo depende de la interfaz `ServicioIntegrales`.
+
+## 14. 🟡 Propuesta v1.1: integración de la interfaz con `Main`
+
+### 14.1 Implementado (Rocío, paquete `integrales.ui`)
+
+| Clase | API pública |
+|---|---|
+| `VentanaPrincipal` | `static instalarAspecto()`, `VentanaPrincipal()`, `getPanelEntrada()`, `getPanelResultado()`, `setCalculando(boolean)`, `setEstado(String)`, `mostrarAviso(String)` |
+| `PanelEntrada` | `getExpresion()`, `getLimiteA()`, `getLimiteB()`, `setDatos(...)`, `alResolver(Runnable)`, `alLimpiar(Runnable)`, `mostrarErrorEntrada(Campo, String)`, `quitarErrores()`, `setHabilitado(boolean)`, `limpiar()` |
+| `PanelResultado` | `mostrarResultado(ResultadoFormateado)`, `mostrarError(MensajeError)`, `mostrarCalculando()`, `limpiar()` |
+| `FormateadorResultado` | `formatearExito(primitiva, integralDefinida, areaGeometrica, a, b)`, `formatearError(codigo, detalle)`, `formatearPrimitiva(String)`, `formatearNumero(double)` |
+
+- El paquete `ui` **no depende** de `modelo` ni de `servicio`: recibe valores simples. El controlador hace la conversión desde `ResultadoIntegral`.
+- Todos los métodos públicos de la ventana y los paneles deben llamarse desde el EDT; fuera de él lanzan `IllegalStateException`.
+- El formateador muestra `raiz(F,2)` como `sqrt(F)`, `raiz(F,N)` como `(F^(1/N))` y `abs(F)` como `|F|`, solo cuando la transformación conserva el significado; si no, mantiene la forma original. Conserva los espacios que escribe Prolog (`2* -cos(x)`). El área `null` se muestra como "No disponible".
+
+### 14.2 Propuesta para el `Main` de Erick (pendiente de confirmar)
+
+```java
+SwingUtilities.invokeLater(() -> {
+    VentanaPrincipal.instalarAspecto();
+    VentanaPrincipal ventana = new VentanaPrincipal();
+    new ControladorIntegral(ventana, new ValidadorEntrada(), servicio, new FormateadorResultado());
+    ventana.setVisible(true);
+});
+```
+
+`ControladorIntegral` (Rocío, etapa siguiente) llamará al servicio dentro de un `SwingWorker`, nunca en el EDT.
+
+### 14.3 Herramienta de desarrollo
+
+`src/test/java/integrales/ui/VistaPreviaInterfaz.java` abre la ventana con datos simulados. No forma parte de la aplicación, no entra en el JAR y no reemplaza a `Main` (ver README).
