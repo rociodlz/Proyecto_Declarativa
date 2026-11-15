@@ -103,6 +103,25 @@ Reglas E1–E14 y L1–L5 de `docs/contrato.md`, sección 12. Estos casos tambi�
 | 60 | `arcsinh(x)` | `asinh(x)` (pendiente de confirmar por Erick) | |
 | 61 | `(x+1)(x-1)` | `(x+1)*(x-1)` | |
 
+## 5.2 Revisión visual de la interfaz (vista previa)
+
+Se realiza con `VistaPreviaInterfaz` (ver README). Los datos son simulados.
+
+| # | Acción | Resultado esperado | Resultado obtenido |
+|---|---|---|---|
+| 62 | Abrir la vista previa | Ventana con la franja ámbar "VISTA PREVIA DE DESARROLLO" | |
+| 63 | Escribir en f(x), a y b; pulsar Resolver (o Enter) | Estado "Calculando…", campos y botones desactivados; luego el resultado simulado del caso 5 con la nota de dato simulado | |
+| 64 | Pulsar Limpiar (o Alt+L) | Campos y resultado vacíos; foco en f(x) | |
+| 65 | Menú Vista previa > Resultado con raíz | Primitiva `x*asin(x)+sqrt(1-x^2) + C`; valores 0.570796 | |
+| 66 | Menú Vista previa > Área no disponible | Área "No disponible" con tooltip; nota explicativa | |
+| 67 | Menú Vista previa > Límites invertidos | Integral -2, área 2, nota de límites invertidos | |
+| 68 | Menú Vista previa > Error de entrada | Campo b con borde rojo y mensaje; sin resultado visible | |
+| 69 | Editar el campo b después del error | Desaparecen el borde rojo y el mensaje | |
+| 70 | Menú Vista previa > Error NO_SOPORTADA | Recuadro rojo con título y detalle técnico; sin valores visibles | |
+| 71 | Seleccionar la primitiva con el ratón y copiar (Ctrl+C) | El texto se copia | |
+| 72 | Redimensionar al mínimo (720×560) y al máximo | Sin cortes; la primitiva larga se ajusta en varias líneas; aparece barra de desplazamiento vertical si hace falta | |
+| 73 | Ayuda > Sintaxis (F1) y Ayuda > Acerca de | Diálogos en español | |
+
 ## 6. Errores del entorno
 
 | # | Situación | Código | Resultado obtenido |

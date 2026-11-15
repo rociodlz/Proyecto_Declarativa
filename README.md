@@ -59,3 +59,20 @@ _Pendiente._
 ## Uso
 
 _Pendiente._
+
+### Vista previa de la interfaz (desarrollo)
+
+`VistaPreviaInterfaz` abre la ventana real con **datos simulados**, sin SWI-Prolog ni el servicio de integración. Es una herramienta de desarrollo: está en `src/test`, no se incluye en el JAR y no reemplaza a `integrales.Main`.
+
+Desde la raíz del proyecto, en PowerShell (terminal integrada de VS Code):
+
+```powershell
+.\mvnw.cmd -q test-compile
+& "$env:JAVA_HOME\bin\java.exe" -cp "target\classes;target\test-classes" integrales.ui.VistaPreviaInterfaz
+```
+
+Se usa `$env:JAVA_HOME\bin\java.exe` para garantizar Java 17 aunque el `java` del `PATH` sea otra versión.
+
+- **Resolver** no calcula: simula una espera y muestra un caso de `docs/casos_prueba.md`, indicando que no corresponde a la expresión escrita.
+- El menú **Vista previa** muestra cada estado de la interfaz: resultados, área no disponible, límites invertidos, error de entrada, errores de cálculo y estado de cálculo.
+- Todos los valores se identifican en la ventana como simulados.
