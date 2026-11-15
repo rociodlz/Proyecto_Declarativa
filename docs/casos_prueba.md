@@ -66,23 +66,42 @@ Estado verificado el 15/11/2026 sobre el commit `1de3224` de `base_conocimiento`
 | 34 | `-x` | No hay regla para la negación | |
 | 35 | `x/2` | No hay regla para la división | |
 | 36 | `sin(2*x)` | No hay regla de la cadena | |
-| 37 | `u(x)` | Función simbólica: `pendiente(...)` | |
+
+El caso 37 (`u(x)`) se movió a la sección 5: la interfaz rechaza `u` y `v` antes de llamar a Prolog.
 
 ## 5. Validación de la entrada (la interfaz rechaza antes de llamar a Prolog)
 
-| # | Entrada | Campo | Mensaje esperado (resumen) | Resultado obtenido |
-|---|---|---|---|---|
-| 38 | _(vacío)_ | f(x) | La expresión está vacía | |
-| 39 | `3*x^` | f(x) | Expresión incompleta | |
-| 40 | `(x+1` | f(x) | Paréntesis no balanceados | |
-| 41 | `sin()` | f(x) | Paréntesis vacíos | |
-| 42 | `x**2` | f(x) | Operadores consecutivos | |
-| 43 | `y+1` | f(x) | Solo se permite la variable x | |
-| 44 | `foo(x)` | f(x) | Función no permitida | |
-| 45 | `1,5` | a | Use punto decimal | |
-| 46 | `abc` | b | El límite debe ser numérico | |
-| 47 | `1e7` | a | El límite debe estar entre −10⁶ y 10⁶ | |
-| 48 | 201 caracteres | f(x) | Máximo 200 caracteres | |
+Reglas E1–E14 y L1–L5 de `docs/contrato.md`, sección 12. Estos casos también están cubiertos por `ValidadorEntradaTest`; la columna **Resultado obtenido** se refiere a la prueba manual en la interfaz.
+
+| # | Entrada | Campo | Regla | Mensaje esperado (resumen) | Resultado obtenido |
+|---|---|---|---|---|---|
+| 37 | `u(x)` | f(x) | E6 | Función genérica: escriba la función concreta | |
+| 38 | _(vacío)_ | f(x) | E1 | La expresión está vacía | |
+| 39 | `3*x^` | f(x) | E13 | Expresión incompleta | |
+| 40 | `(x+1` | f(x) | E9 | Paréntesis no balanceados | |
+| 41 | `sin()` | f(x) | E10 | Paréntesis vacíos | |
+| 42 | `x**2` | f(x) | E11 | Operadores consecutivos | |
+| 43 | `y+1` | f(x) | E6 | Solo se permite la variable x | |
+| 44 | `foo(x)` | f(x) | E6 | Función no permitida | |
+| 45 | `1,5` | a | L2 | Use punto decimal | |
+| 46 | `abc` | b | L3 | El límite b debe ser un número | |
+| 47 | `1e7` | a | L5 | Debe estar entre -1000000 y 1000000 (límite provisional) | |
+| 48 | 201 caracteres | f(x) | E2 | El máximo es 200 | |
+| 52 | `sinx` | f(x) | E7 | ¿Quiso escribir sin(x)? | |
+| 53 | `sin x` | f(x) | E8 | La función sin debe ir seguida de "(" | |
+| 54 | `2 3` | f(x) | E14 | Falta un operador | |
+
+### 5.1 Entradas que la validación acepta (las transforma el normalizador)
+
+| # | Entrada | Forma normalizada esperada | Resultado obtenido |
+|---|---|---|---|
+| 55 | `3x^2` | `3*x^2` | |
+| 56 | `2*-x` | `2*(-x)` | |
+| 57 | `x^-1` | `x^(-1)` | |
+| 58 | `.5*x` | `0.5*x` | |
+| 59 | `Sen(X)` | `sin(x)` | |
+| 60 | `arcsinh(x)` | `asinh(x)` (pendiente de confirmar por Erick) | |
+| 61 | `(x+1)(x-1)` | `(x+1)*(x-1)` | |
 
 ## 6. Errores del entorno
 
