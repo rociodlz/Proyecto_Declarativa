@@ -50,11 +50,43 @@ Linux / macOS:
 
 ## Instalación
 
-_Pendiente._
+1. Instale el **JDK 17** o superior y compruebe con `java -version`.
+2. Instale **SWI-Prolog** y compruebe con `swipl --version`:
+   - **Windows:** instalador de <https://www.swi-prolog.org/download/stable>. Durante la instalación marque *Add swipl to the system PATH*. Si no lo hizo, el sistema también lo busca en `C:\Program Files\swipl\bin\swipl.exe`.
+   - **Linux (Debian/Ubuntu):** `sudo apt install swi-prolog`.
+   - **macOS:** `brew install swi-prolog`.
+3. Compile el proyecto desde la carpeta raíz:
+   - Windows: `mvnw.cmd clean package`
+   - Linux / macOS: `./mvnw clean package`
+
+   El ejecutable queda en `target/integrales-declarativa-1.0.0.jar`.
+
+Si `swipl` está instalado en otra ruta, indíquela en `config.properties`:
+
+```properties
+# Vacía: se busca en el PATH y en las rutas típicas de instalación.
+swipl.ruta=C:/Program Files/swipl/bin/swipl.exe
+# Carpeta que contiene puente.pl y la base de conocimiento.
+prolog.dir=base_conocimiento
+# Tiempo máximo de una consulta, en milisegundos.
+timeout.ms=5000
+```
 
 ## Ejecución
 
-_Pendiente._
+Desde la carpeta raíz del proyecto:
+
+- Windows: `ejecutar.bat`
+- Linux / macOS: `./ejecutar.sh`
+
+Los scripts buscan el `.jar` en su misma carpeta o en `target/`, y se ejecutan desde la carpeta del proyecto para encontrar `config.properties` y `base_conocimiento/`.
+
+Opciones:
+
+- `--mock`: usa respuestas simuladas, sin SWI-Prolog (útil para probar la interfaz).
+- `"<f(x)>" <a> <b>`: modo consola. Resuelve una integral sin abrir la interfaz y sirve para comprobar la instalación de Prolog. Ejemplo: `./ejecutar.sh "3*x^2" 0 2`.
+
+Si aparece el error `PROLOG_NO_DISPONIBLE`, SWI-Prolog no está instalado o no se encontró: revise el paso 2 de la instalación o configure `swipl.ruta`.
 
 ## Uso
 
