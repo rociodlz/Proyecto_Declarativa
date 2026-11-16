@@ -122,6 +122,44 @@ Se realiza con `VistaPreviaInterfaz` (ver README). Los datos son simulados.
 | 72 | Redimensionar al mínimo (720×560) y al máximo | Sin cortes; la primitiva larga se ajusta en varias líneas; aparece barra de desplazamiento vertical si hace falta | |
 | 73 | Ayuda > Sintaxis (F1) y Ayuda > Acerca de | Diálogos en español | |
 
+## 5.3 Controlador
+
+### Pruebas automáticas (`ControladorIntegralTest`)
+
+Usan la ventana real (sin mostrarla) y servicios simulados con lambdas, sincronizados con `CountDownLatch`, sin pausas. Se omiten si no hay entorno gráfico.
+
+| Aspecto | Qué se comprueba |
+|---|---|
+| Construcción | Fuera del EDT lanza `IllegalStateException`; argumentos nulos se rechazan |
+| Botones | Resolver (botón por defecto / Enter) y Limpiar ejecutan el controlador |
+| Validación (9 casos) | f(x) vacía, incompleta, con `y` o con `u(x)`; a = `abc` o `1e7`; b = `1,5` o vacío; f(x) y límites inválidos a la vez → error solo en el primer campo; **el servicio no se llama** |
+| Resultado anterior | Un error de entrada borra el resultado que se mostraba |
+| Solicitud | La expresión llega sin espacios exteriores y sin normalizar (`Sen( X )`); límites como `double` |
+| Límites | a > b y a = b llegan al servicio; se muestra la nota correspondiente |
+| Éxito | Primitiva `x*asin(x)+sqrt(1-x^2) + C`, `0.570796`; área `null` → "No disponible" |
+| Errores | `NO_SOPORTADA` muestra su título y detalle; excepción, `null`, éxito sin integral o con `NaN` → "Error interno" y la interfaz se rehabilita |
+| Hilos | El servicio se ejecuta fuera del EDT |
+| Carga | Mientras calcula: Resolver, Limpiar y campos desactivados, "Calculando…"; al terminar se rehabilitan |
+| Concurrencia | Un segundo Resolver durante un cálculo se ignora (el servicio se llama una vez) |
+| Limpiar durante un cálculo | La interfaz queda limpia, la respuesta antigua se descarta y un cálculo nuevo muestra su propio resultado |
+| Limpiar antes de que empiece el servicio | Resolver y Limpiar en la misma tarea del EDT: el trabajo queda cancelado y no aparece ningún resultado posterior |
+| Tiempo agotado (200 ms en la prueba) | Con un servicio bloqueado que **ignora la interrupción**: "Tiempo agotado", interfaz habilitada, la respuesta tardía no cambia la pantalla y se puede iniciar un cálculo nuevo |
+| Temporizador antiguo | Limpiar detiene el temporizador; si el de una operación anterior se disparara durante un cálculo nuevo, no lo afecta |
+| Cerrar la ventana | Con un cálculo en curso: el trabajo se cancela y el temporizador se detiene; la respuesta posterior del servicio no provoca errores |
+| Tiempo máximo inválido | Cero, negativo o nulo se rechazan |
+
+Las pruebas del controlador se repitieron 30 veces seguidas sin fallos, para descartar condiciones de carrera.
+
+### Revisión manual (cuando `Main` conecte el controlador)
+
+| # | Acción | Resultado esperado | Resultado obtenido |
+|---|---|---|---|
+| 74 | `ejecutar.bat --mock`, escribir `3*x^2`, a = 0, b = 2, Enter | "Calculando…" y luego primitiva `x^3 + C`, integral 8, área 8 | |
+| 75 | f(x) = `x^5` (respuesta lenta del mock, 3 s) | Campos y botones desactivados durante el cálculo; luego `x^6/6 + C` y área "No disponible" | |
+| 76 | f(x) = `x*sin(x)` | Error "Integral no soportada" | |
+| 77 | f(x) = `x^(-1)`, a = -1, b = 1 | Error "Fuera del dominio" | |
+| 78 | b = `abc` | Error en el campo b; el mock no se consulta | |
+
 ## 6. Errores del entorno
 
 | # | Situación | Código | Resultado obtenido |
