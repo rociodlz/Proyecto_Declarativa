@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.LockSupport;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -483,9 +484,12 @@ class ControladorIntegralTest {
         }, Duration.ofMillis(200));
         escribir("3*x^2", "0", "2");
 
-        // El temporizador cancela el trabajo en el EDT; SwingWorker avisa DONE en esa misma tarea,
-        // y el mensaje de error se muestra antes de que la prueba vuelva a leer la interfaz.
-        esperar(resolver());
+        // No se espera DONE para detectar el tiempo agotado: al cancelar un trabajo cuyo
+        // doInBackground sigue en curso, JDK 17 avisa DONE enseguida, pero JDK 21 lo hace recién
+        // cuando doInBackground termina. Se espera lo que ve el usuario.
+        CountDownLatch finLenta = resolver();
+        esperarHasta(() -> "Tiempo agotado".equals(SondaInterfaz.tituloError(resultado()))
+                && !ventana.isCalculando());
         enEDT(() -> {
             assertTrue(SondaInterfaz.errorResultadoVisible(resultado()));
             assertEquals("Tiempo agotado", SondaInterfaz.tituloError(resultado()));
@@ -501,6 +505,9 @@ class ControladorIntegralTest {
         // La respuesta tardía llega después: no debe cambiar la pantalla.
         liberar.countDown();
         assertTrue(lentaTermino.await(ESPERA_MAXIMA_S, TimeUnit.SECONDS));
+        // SwingWorker avisa DONE en el EDT justo después de ejecutar done(); con este latch,
+        // la respuesta tardía ya pasó por el controlador (y se descartó) en JDK 17 y en JDK 21.
+        esperar(finLenta);
         enEDT(() -> { });
         enEDT(() -> {
             assertEquals("Tiempo agotado", SondaInterfaz.tituloError(resultado()));
@@ -675,6 +682,20 @@ class ControladorIntegralTest {
 
     private static void esperar(CountDownLatch fin) throws InterruptedException {
         assertTrue(fin.await(ESPERA_MAXIMA_S, TimeUnit.SECONDS), "El cálculo no terminó a tiempo");
+    }
+
+    /**
+     * Espera hasta que la condición se cumpla, evaluándola siempre en el EDT. Falla si no se cumple
+     * en {@link #ESPERA_MAXIMA_S}. Entre comprobaciones hace una pausa corta con
+     * {@link LockSupport#parkNanos} para no ocupar el EDT con consultas continuas: no hay ningún
+     * evento que avise de un cambio en la interfaz.
+     */
+    private static void esperarHasta(Callable<Boolean> condicion) throws Exception {
+        long limite = System.nanoTime() + TimeUnit.SECONDS.toNanos(ESPERA_MAXIMA_S);
+        while (!leer(condicion)) {
+            assertTrue(System.nanoTime() < limite, "La interfaz no llegó al estado esperado a tiempo");
+            LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(10));
+        }
     }
 
     /** Para servicios simulados: espera el latch; si el hilo se interrumpe (cancelación), continúa. */
