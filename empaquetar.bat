@@ -17,7 +17,7 @@ set "ZIP=target/%NOMBRE%.zip"
 
 git diff --quiet HEAD --
 if errorlevel 1 echo Aviso: hay cambios sin commitear; el zip usa la version commiteada (HEAD).
-for %%A in (puente.pl bc_integrales.pl bc_evaluacion.pl) do (
+for %%A in (puente.pl bc_evaluacion.pl bc_integrales.pl bc_derivadas.pl bc_simplificaciones_algebraicas.pl bc_simplificaciones.pl) do (
     git cat-file -e "HEAD:base_conocimiento/%%A" 2>nul
     if errorlevel 1 echo Aviso: falta base_conocimiento/%%A en HEAD; el sistema no podra usar Prolog.
 )
