@@ -45,8 +45,9 @@
 % integrar/2
 
 integrar(F, P) :-
-    catch(integral(F, x, P), Error, error_de_integracion(Error)),
-    \+ contiene_pendiente(P).
+    catch(integral(F, x, P0), Error, error_de_integracion(Error)),
+    \+ contiene_pendiente(P0),
+    simplificar_primitiva(P0, P).
 
 %   Un predicado inexistente indica una base de conocimiento incompleta: se
 %   propaga. Cualquier otro error significa que no hay una regla aplicable.
@@ -63,12 +64,132 @@ contiene_pendiente(T) :-
 
 
 % ---------------------------------------------------------------------------
+% simplificar_primitiva/2
+%
+% integral/3 ya simplifica con simplificar_algebra/2 (bc_simplificaciones_algebraicas.pl),
+% pero ese simplificador no tiene reglas para constantes que multiplican fracciones
+% o sumas, exponentes negativos ni signos. Por eso quedaban primitivas como
+% 3*(x^3/3), x^ -1/ -1 o 2*(x^2/2+x). Esta pasada se aplica solo a la primitiva
+% que se devuelve a Java; no cambia el simplificador de Henry, que también usa
+% bc_derivadas.pl.
+%
+% Las reglas recorren la expresión de abajo hacia arriba y se repiten hasta que
+% el resultado no cambia (punto fijo), con un máximo de pasadas para que nunca
+% pueda haber un ciclo. Todas son identidades válidas en todo el dominio de la
+% expresión original: no se cancelan factores con x (x/x), no se combinan
+% potencias de potencias ni raíces, de modo que la primitiva simplificada está
+% definida exactamente donde lo estaba la original.
+
+maximo_pasadas_simplificacion(50).
+
+simplificar_primitiva(P0, P) :-
+    maximo_pasadas_simplificacion(Maximo),
+    simplificar_hasta_punto_fijo(Maximo, P0, P).
+
+simplificar_hasta_punto_fijo(0, P, P) :- !.
+simplificar_hasta_punto_fijo(N, P0, P) :-
+    pasada_simplificacion(P0, P1),
+    (   P1 == P0
+    ->  P = P0
+    ;   N1 is N - 1,
+        simplificar_hasta_punto_fijo(N1, P1, P)
+    ).
+
+pasada_simplificacion(T, R) :-
+    compound(T), !,
+    T =.. [Operador|Argumentos],
+    maplist(pasada_simplificacion, Argumentos, Simplificados),
+    T1 =.. [Operador|Simplificados],
+    (   regla_primitiva(T1, R0)
+    ->  R = R0
+    ;   R = T1
+    ).
+pasada_simplificacion(T, T).
+
+%   regla_primitiva(+Expresion, -Simplificada)  C, C1, C2 y D son números.
+
+% Neutros y signos
+regla_primitiva(F*C, F) :- number(C), C =:= 1, !.
+regla_primitiva(C*F, F) :- number(C), C =:= 1, !.
+regla_primitiva(C*F, -F) :- number(C), C =:= -1, !.
+regla_primitiva(F/D, F) :- number(D), D =:= 1, !.
+regla_primitiva(-(-F), F) :- !.
+regla_primitiva(-C, N) :- number(C), !, N is -C.
+regla_primitiva(-(C*F), N*F) :- number(C), !, N is -C.
+regla_primitiva(-(N/F), M/F) :- number(N), !, M is -N.
+regla_primitiva(-(F/D), (-F)/D) :- number(D), !.
+regla_primitiva(C*(-F), N*F) :- number(C), !, N is -C.
+regla_primitiva(F/D, -(F/E)) :- number(D), D < 0, !, E is -D.
+
+% Constantes que multiplican productos, fracciones y sumas
+regla_primitiva(C1*(C2*F), N*F) :- number(C1), number(C2), producto_exacto(C1, C2, N), !.
+regla_primitiva(C*(N/F), M/F) :- number(C), number(N), producto_exacto(C, N, M), !.
+regla_primitiva(C*(F/D), R) :- number(C), number(D), D =\= 0, !, coeficiente_sobre(C, D, F, R).
+regla_primitiva((C*F)/D, R) :- number(C), number(D), D =\= 0, !, coeficiente_sobre(C, D, F, R).
+regla_primitiva((N/F)/D, R) :- number(N), number(D), D =\= 0, !, numerador_sobre(N, D, F, R).
+regla_primitiva(C*(F+G), C*F+C*G) :- number(C), !.
+regla_primitiva(C*(F-G), C*F-C*G) :- number(C), !.
+
+% Sumas y restas de términos negativos
+regla_primitiva(F+(-G), F-G) :- !.
+regla_primitiva(F+C*G, F-N*G) :- number(C), C < 0, !, N is -C.
+regla_primitiva(F-(-G), F+G) :- !.
+regla_primitiva(F-C*G, F+N*G) :- number(C), C < 0, !, N is -C.
+regla_primitiva(F+C, F-N) :- number(C), C < 0, !, N is -C.
+
+% Exponentes enteros negativos: F^(-N) = 1/F^N (mismo dominio: F distinto de 0)
+regla_primitiva(F^N, 1/F) :- integer(N), N =:= -1, !.
+regla_primitiva(F^N, 1/F^M) :- integer(N), N < -1, !, M is -N.
+
+%   Los coeficientes solo se operan cuando el resultado es exacto: con enteros, o
+%   cuando uno de los factores es 1 o -1. Con decimales (0.5, 1.1) se conserva la
+%   forma de fracción, para no introducir aproximaciones de coma flotante como
+%   0.16666666666666666 en lugar de 0.5/3.
+
+%   producto_exacto(+A, +B, -P)  P = A*B, solo si el producto es exacto.
+producto_exacto(A, B, P) :-
+    (   integer(A), integer(B)
+    ;   abs(A) =:= 1
+    ;   abs(B) =:= 1
+    ), !,
+    P is A * B.
+
+%   coeficiente_sobre(+C, +D, +F, -R)  R = C*F/D con el coeficiente reducido.
+coeficiente_sobre(C, D, F, R) :-
+    integer(C), integer(D), !,
+    G is gcd(C, D),
+    C1 is C // G, D1 is D // G,
+    (   D1 < 0 -> C2 is -C1, D2 is -D1 ; C2 = C1, D2 = D1 ),
+    con_coeficiente(C2, F, T),
+    (   D2 =:= 1 -> R = T ; R = T/D2 ).
+coeficiente_sobre(C, D, F, (C*F)/D).      % decimales: se conserva la fracción
+
+%   numerador_sobre(+N, +D, +F, -R)  R = (N/F)/D = N/(D*F) con N/D reducido.
+numerador_sobre(N, D, F, R) :-
+    integer(N), integer(D), !,
+    G is gcd(N, D),
+    N1 is N // G, D1 is D // G,
+    (   D1 < 0 -> N2 is -N1, D2 is -D1 ; N2 = N1, D2 = D1 ),
+    (   D2 =:= 1 -> R = N2/F ; R = N2/(D2*F) ).
+numerador_sobre(N, D, F, N/(D*F)).        % decimales: se conserva la fracción
+
+con_coeficiente(K, F, F) :- K =:= 1, !.
+con_coeficiente(K, F, -F) :- K =:= -1, !.
+con_coeficiente(K, F, K*F).
+
+
+% ---------------------------------------------------------------------------
 % evaluar_area/4
 
+%   La continuidad se verifica ANTES de evaluar los extremos: así, si un extremo es
+%   una singularidad (x^(-1) en [0, 1], atanh(x) en [-1, 0]), el error dice que la
+%   función no está definida en ese punto, y no que el valor es demasiado grande.
+%   Un desbordamiento auténtico (2^x en [0, 1000000]) sigue llegando como
+%   float_overflow al evaluar.
 evaluar_area(P, A, B, V) :-
+    verificar_continuidad(P, A, B),
     valor(P, B, VB),
     valor(P, A, VA),
-    verificar_continuidad(P, A, B),
     V is VB - VA.
 
 %   valor(+Expresion, +X0, -V)  Evalúa la expresión en x = X0 (como float).

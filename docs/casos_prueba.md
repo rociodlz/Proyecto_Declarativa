@@ -2,6 +2,12 @@
 
 > **Estado:** casos de prueba definidos; ejecución manual parcial registrada el 16/11/2026 (sección 5.4). La columna **Resultado obtenido** se llena al probar el sistema completo.
 
+En la columna **Resultado obtenido**, cada resultado indica su origen:
+
+- **Manual:** observado por una persona en la interfaz real (fecha y entorno en la sección 5.4).
+- **Automático ✅:** la prueba del repositorio indicada comprueba la misma entrada y el resultado esperado, y pasó en `mvnw clean verify` el 16/11/2026, con JDK 17 y JDK 21 y SWI-Prolog 10.1.13 (rama `fix/simplificacion-sintaxis-final`). Se puede repetir con el mismo comando. Una prueba automática **no** equivale a una revisión visual de la ventana.
+- **Vacía:** el caso todavía no se ha ejecutado (casos 62–73, revisión visual).
+
 Los valores esperados se calcularon de forma analítica y se comprobaron con integración numérica, redondeados a 6 decimales. Los límites con π se ingresan como decimales: π ≈ `3.141593`, π/2 ≈ `1.570796`, 2π ≈ `6.283185`.
 
 - **Integral definida:** `P(b) − P(a)`; puede ser negativa.
@@ -11,29 +17,29 @@ Los valores esperados se calcularon de forma analítica y se comprobaron con int
 
 | # | Tipo PDF | f(x) | a | b | Primitiva esperada | Integral definida | Área geométrica | Resultado obtenido |
 |---|---|---|---|---|---|---|---|---|
-| 1 | a) k | `5` | 0 | 2 | `5*x` | 10.000000 | 10.000000 | |
-| 2 | b) x | `x` | 0 | 2 | `x^2/2` | 2.000000 | 2.000000 | |
-| 3 | c) k·x | `3*x` | 1 | 3 | `3*(x^2/2)` | 12.000000 | 12.000000 | |
-| 4 | d) xⁿ | `x^3` | -1 | 2 | `x^4/4` | 3.750000 | 4.250000 | |
-| 5 | d) k·xⁿ | `3*x^2` | 0 | 2 | `x^3` | 8.000000 | 8.000000 | `3*(x^3/3)+C` (matemáticamente equivalente a `x^3 + C`), 8, 8. Aprobado (manual, 16/11/2026) |
-| 6 | d) x⁻¹ | `x^(-1)` | 1 | 2 | `ln(abs(x))` | 0.693147 | 0.693147 | |
-| 7 | d) x⁻² | `x^(-2)` | 1 | 2 | `-1/x` | 0.500000 | 0.500000 | |
-| 8 | g) u + v | `x^2+x` | 0 | 1 | `x^3/3+x^2/2` | 0.833333 | 0.833333 | |
-| 9 | h) u − v | `x^2-x` | 0 | 2 | `x^3/3-x^2/2` | 0.666667 | 1.000000 | |
-| 10 | i) aˣ | `2^x` | 0 | 3 | `2^x/ln(2)` | 10.098865 | 10.098865 | |
-| 11 | k) sin | `sin(x)` | 0 | π | `-cos(x)` | 2.000000 | 2.000000 | |
-| 12 | k) sin | `sin(x)` | 0 | 2π | `-cos(x)` | 0.000000 | 4.000000 | |
-| 13 | l) cos | `cos(x)` | 0 | π/2 | `sin(x)` | 1.000000 | 1.000000 | |
-| 14 | m) tan | `tan(x)` | 0 | 1 | `-ln(abs(cos(x)))` | 0.615626 | 0.615626 | |
-| 15 | n) asin | `asin(x)` | 0 | 1 | `x*asin(x)+sqrt(1-x^2)` | 0.570796 | 0.570796 | |
-| 16 | o) acos | `acos(x)` | 0 | 1 | `x*acos(x)-sqrt(1-x^2)` | 1.000000 | 1.000000 | |
-| 17 | p) atan | `atan(x)` | 0 | 1 | `x*atan(x)-ln(1+x^2)/2` | 0.438825 | 0.438825 | |
-| 18 | q) sinh | `sinh(x)` | 0 | 1 | `cosh(x)` | 0.543081 | 0.543081 | |
-| 19 | r) cosh | `cosh(x)` | 0 | 1 | `sinh(x)` | 1.175201 | 1.175201 | |
-| 20 | s) tanh | `tanh(x)` | 0 | 1 | `ln(cosh(x))` | 0.433781 | 0.433781 | |
-| 21 | t) asinh | `asinh(x)` | 0 | 1 | `x*asinh(x)-sqrt(x^2+1)` | 0.467160 | 0.467160 | |
-| 22 | u) acosh | `acosh(x)` | 1 | 2 | `x*acosh(x)-sqrt(x-1)*sqrt(x+1)` | 0.901865 | 0.901865 | |
-| 23 | v) atanh | `atanh(x)` | 0 | 0.5 | `x*atanh(x)+ln(1-x^2)/2` | 0.130812 | 0.130812 | |
+| 1 | a) k | `5` | 0 | 2 | `5*x` | 10.000000 | 10.000000 | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real: integral y área; la forma de la primitiva no se compara) |
+| 2 | b) x | `x` | 0 | 2 | `x^2/2` | 2.000000 | 2.000000 | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real: integral y área; la forma de la primitiva no se compara) |
+| 3 | c) k·x | `3*x` | 1 | 3 | `3*x^2/2` | 12.000000 | 12.000000 | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real: integral y área; la primitiva `3*x^2/2` la compara `primitivaSimplificada`) |
+| 4 | d) xⁿ | `x^3` | -1 | 2 | `x^4/4` | 3.750000 | 4.250000 | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real: integral y área; la forma de la primitiva no se compara) |
+| 5 | d) k·xⁿ | `3*x^2` | 0 | 2 | `x^3` | 8.000000 | 8.000000 | `3*(x^3/3)+C` (matemáticamente equivalente a `x^3 + C`), 8, 8. Aprobado (manual, 16/11/2026) · Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real: integral y área; con la simplificación de la primitiva, ahora se obtiene `x^3`, que compara `primitivaSimplificada`, caso 99) |
+| 6 | d) x⁻¹ | `x^(-1)` | 1 | 2 | `ln(abs(x))` | 0.693147 | 0.693147 | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real: integral y área; la forma de la primitiva no se compara) |
+| 7 | d) x⁻² | `x^(-2)` | 1 | 2 | `-1/x` | 0.500000 | 0.500000 | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real: integral y área; la primitiva `-1/x` la compara `primitivaSimplificada`, caso 100) |
+| 8 | g) u + v | `x^2+x` | 0 | 1 | `x^3/3+x^2/2` | 0.833333 | 0.833333 | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real: integral y área; la forma de la primitiva no se compara) |
+| 9 | h) u − v | `x^2-x` | 0 | 2 | `x^3/3-x^2/2` | 0.666667 | 1.000000 | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real: integral y área; la forma de la primitiva no se compara) |
+| 10 | i) aˣ | `2^x` | 0 | 3 | `2^x/ln(2)` | 10.098865 | 10.098865 | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real: integral y área; la forma de la primitiva no se compara) |
+| 11 | k) sin | `sin(x)` | 0 | π | `-cos(x)` | 2.000000 | 2.000000 | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real: integral y área; la forma de la primitiva no se compara) |
+| 12 | k) sin | `sin(x)` | 0 | 2π | `-cos(x)` | 0.000000 | 4.000000 | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real: integral y área; la forma de la primitiva no se compara) |
+| 13 | l) cos | `cos(x)` | 0 | π/2 | `sin(x)` | 1.000000 | 1.000000 | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real: integral y área; la forma de la primitiva no se compara) |
+| 14 | m) tan | `tan(x)` | 0 | 1 | `-ln(abs(cos(x)))` | 0.615626 | 0.615626 | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real: integral y área; la forma de la primitiva no se compara) |
+| 15 | n) asin | `asin(x)` | 0 | 1 | `x*asin(x)+sqrt(1-x^2)` | 0.570796 | 0.570796 | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real: integral y área; la forma de la primitiva no se compara) |
+| 16 | o) acos | `acos(x)` | 0 | 1 | `x*acos(x)-sqrt(1-x^2)` | 1.000000 | 1.000000 | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real: integral y área; la forma de la primitiva no se compara) |
+| 17 | p) atan | `atan(x)` | 0 | 1 | `x*atan(x)-ln(1+x^2)/2` | 0.438825 | 0.438825 | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real: integral y área; la forma de la primitiva no se compara) |
+| 18 | q) sinh | `sinh(x)` | 0 | 1 | `cosh(x)` | 0.543081 | 0.543081 | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real: integral y área; la forma de la primitiva no se compara) |
+| 19 | r) cosh | `cosh(x)` | 0 | 1 | `sinh(x)` | 1.175201 | 1.175201 | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real: integral y área; la forma de la primitiva no se compara) |
+| 20 | s) tanh | `tanh(x)` | 0 | 1 | `ln(cosh(x))` | 0.433781 | 0.433781 | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real: integral y área; la forma de la primitiva no se compara) |
+| 21 | t) asinh | `asinh(x)` | 0 | 1 | `x*asinh(x)-sqrt(x^2+1)` | 0.467160 | 0.467160 | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real: integral y área; la forma de la primitiva no se compara) |
+| 22 | u) acosh | `acosh(x)` | 1 | 2 | `x*acosh(x)-sqrt(x-1)*sqrt(x+1)` | 0.901865 | 0.901865 | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real: integral y área; la forma de la primitiva no se compara) |
+| 23 | v) atanh | `atanh(x)` | 0 | 0.5 | `x*atanh(x)+ln(1-x^2)/2` | 0.130812 | 0.130812 | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real: integral y área; la forma de la primitiva no se compara) |
 
 La primitiva esperada es matemáticamente equivalente a la indicada; su forma exacta depende de la simplificación de la base de conocimiento.
 
@@ -41,8 +47,8 @@ La primitiva esperada es matemáticamente equivalente a la indicada; su forma ex
 
 | # | f(x) | a | b | Integral definida | Área geométrica | Comportamiento esperado | Resultado obtenido |
 |---|---|---|---|---|---|---|---|
-| 24 | `x` | 1 | 1 | 0.000000 | 0.000000 | a = b es válido | |
-| 25 | `x` | 2 | 0 | -2.000000 | 2.000000 | a > b es válido; se muestra la nota de límites invertidos | `x^2/2+C`, -2, 2, nota de límites invertidos. Aprobado (manual, 16/11/2026) |
+| 24 | `x` | 1 | 1 | 0.000000 | 0.000000 | a = b es válido | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real: integral y área; la nota la verifican `ControladorIntegralTest.limitesInvertidosEIguales`, con servicio simulado, y `FormateadorResultadoTest`) |
+| 25 | `x` | 2 | 0 | -2.000000 | 2.000000 | a > b es válido; se muestra la nota de límites invertidos | `x^2/2+C`, -2, 2, nota de límites invertidos. Aprobado (manual, 16/11/2026) · Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real: integral y área; la nota la verifican `ControladorIntegralTest.limitesInvertidosEIguales`, con servicio simulado, y `FormateadorResultadoTest`) |
 
 ## 2.1 Área geométrica
 
@@ -50,34 +56,34 @@ La integral definida y el área geométrica pueden ser distintas (casos 4, 9, 12
 
 | # | f(x) | a | b | Integral definida | Área geométrica | Qué se comprueba | Resultado obtenido |
 |---|---|---|---|---|---|---|---|
-| 79 | `x^(-1)` | -2 | -1 | -0.693147 | 0.693147 | Intervalo negativo sin el 0: es válido | |
-| 80 | `asin(x)` | -1 | 1 | 0.000000 | 1.141593 | Los extremos ±1 están en el dominio | |
-| 81 | `acos(x)` | -1 | 1 | 3.141593 | 3.141593 | Los extremos ±1 están en el dominio | |
-| 82 | `x^3-x` | -2 | 2 | 0.000000 | 5.000000 | Tres raíces de un polinomio | `x^4/4-x^2/2+C`, 0, 5. Aprobado (manual, 16/11/2026) |
-| 83 | `x^3` | 2 | -1 | -3.750000 | 4.250000 | Límites invertidos: el área sigue siendo ≥ 0 | |
-| 84 | `sin(x)` | 0 | 7000 | 0.137987 | 4456.137987 | 2228 cambios de signo | `-cos(x)+C`, 0.137987, 4456.137987. Aprobado (manual, 16/11/2026) |
-| 85 | `cos(x)` | 0 | 7000 | 0.506885 | 4456.506885 | 2228 cambios de signo | |
-| 86 | `sin(x)+0.5` | 0 | 10 | 6.839072 | 8.211063 | Ceros por muestreo verificado | |
-| 87 | `sin(x)+0.5` | 0 | 1000 | 500.437621 | 718.220956 | Ceros por muestreo verificado | |
-| 88 | `x^20-1` | -2 | 2 | 199724.761905 | 199728.571429 | Polinomio de grado alto | |
-| 89 | `sin(x)+0.5` | 0 | 100000 | 50001.999361 | No disponible | Demasiado largo para muestrear con confianza | |
-| 90 | `sin(x)` | 0 | 1000000 | 0.063248 | No disponible | Más de 200000 cambios de signo | `-cos(x)+C`, 0.063248, área «No disponible» con nota explicativa. Aprobado (manual, 16/11/2026) |
+| 79 | `x^(-1)` | -2 | -1 | -0.693147 | 0.693147 | Intervalo negativo sin el 0: es válido | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real: integral y área; la forma de la primitiva no se compara) |
+| 80 | `asin(x)` | -1 | 1 | 0.000000 | 1.141593 | Los extremos ±1 están en el dominio | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real: integral y área; la forma de la primitiva no se compara) |
+| 81 | `acos(x)` | -1 | 1 | 3.141593 | 3.141593 | Los extremos ±1 están en el dominio | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real: integral y área; la forma de la primitiva no se compara) |
+| 82 | `x^3-x` | -2 | 2 | 0.000000 | 5.000000 | Tres raíces de un polinomio | `x^4/4-x^2/2+C`, 0, 5. Aprobado (manual, 16/11/2026) · Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real: integral y área; la forma de la primitiva no se compara) |
+| 83 | `x^3` | 2 | -1 | -3.750000 | 4.250000 | Límites invertidos: el área sigue siendo ≥ 0 | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real: integral y área; la forma de la primitiva no se compara) |
+| 84 | `sin(x)` | 0 | 7000 | 0.137987 | 4456.137987 | 2228 cambios de signo | `-cos(x)+C`, 0.137987, 4456.137987. Aprobado (manual, 16/11/2026) · Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
+| 85 | `cos(x)` | 0 | 7000 | 0.506885 | 4456.506885 | 2228 cambios de signo | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
+| 86 | `sin(x)+0.5` | 0 | 10 | 6.839072 | 8.211063 | Ceros por muestreo verificado | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
+| 87 | `sin(x)+0.5` | 0 | 1000 | 500.437621 | 718.220956 | Ceros por muestreo verificado | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
+| 88 | `x^20-1` | -2 | 2 | 199724.761905 | 199728.571429 | Polinomio de grado alto | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
+| 89 | `sin(x)+0.5` | 0 | 100000 | 50001.999361 | No disponible | Demasiado largo para muestrear con confianza | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real: área «No disponible» e integral definida) |
+| 90 | `sin(x)` | 0 | 1000000 | 0.063248 | No disponible | Más de 200000 cambios de signo | `-cos(x)+C`, 0.063248, área «No disponible» con nota explicativa. Aprobado (manual, 16/11/2026) · Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real: área «No disponible» e integral definida) |
 
 ## 3. Dominio y singularidades (se espera `DOMINIO`)
 
 | # | f(x) | a | b | Motivo | Resultado obtenido |
 |---|---|---|---|---|---|
-| 26 | `x^(-1)` | -1 | 1 | Singularidad en x = 0 | «Fuera del dominio», sin valores numéricos. Se ingresó como `x^-1` en lugar de `x^(-1)`. Aprobado (manual, 16/11/2026) |
-| 27 | `x^(-2)` | -1 | 1 | Singularidad en x = 0 | |
-| 28 | `tan(x)` | 0 | 2 | Singularidad en x = π/2 | |
-| 29 | `asin(x)` | 0 | 2 | Fuera del dominio [−1, 1] | |
-| 30 | `acosh(x)` | 0 | 2 | Fuera del dominio x ≥ 1 | |
-| 31 | `atanh(x)` | 0 | 1 | atanh(1) no está definida | |
-| 91 | `tan(x)` | 0 | 12566.370614 | 8000 singularidades en x = π/2 + kπ (el muestreo no las ve) | |
-| 92 | `tan(x)` | 1.570796 | 2 | Singularidad en π/2 ≈ 1.5707963, justo después del límite inferior | |
-| 93 | `x^(-1)` | 0 | 1 | Singularidad en el límite inferior | |
-| 94 | `x^(-2)` | 0 | 1 | Singularidad en el límite inferior | |
-| 95 | `atanh(x)` | -1 | 0 | atanh(−1) no está definida | |
+| 26 | `x^(-1)` | -1 | 1 | Singularidad en x = 0 | «Fuera del dominio», sin valores numéricos. Se ingresó como `x^-1` en lugar de `x^(-1)`. Aprobado (manual, 16/11/2026) · Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
+| 27 | `x^(-2)` | -1 | 1 | Singularidad en x = 0 | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
+| 28 | `tan(x)` | 0 | 2 | Singularidad en x = π/2 | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
+| 29 | `asin(x)` | 0 | 2 | Fuera del dominio [−1, 1] | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
+| 30 | `acosh(x)` | 0 | 2 | Fuera del dominio x ≥ 1 | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
+| 31 | `atanh(x)` | 0 | 1 | atanh(1) no está definida | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
+| 91 | `tan(x)` | 0 | 12566.370614 | 8000 singularidades en x = π/2 + kπ (el muestreo no las ve) | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
+| 92 | `tan(x)` | 1.570796 | 2 | Singularidad en π/2 ≈ 1.5707963, justo después del límite inferior | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
+| 93 | `x^(-1)` | 0 | 1 | Singularidad en el límite inferior | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
+| 94 | `x^(-2)` | 0 | 1 | Singularidad en el límite inferior | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
+| 95 | `atanh(x)` | -1 | 0 | atanh(−1) no está definida | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
 
 ## 4. Integrales no soportadas actualmente (se espera `NO_SOPORTADA`)
 
@@ -85,51 +91,51 @@ Estado verificado el 15/11/2026 sobre el commit `1de3224` de `base_conocimiento`
 
 | # | f(x) | Motivo | Resultado obtenido |
 |---|---|---|---|
-| 32 | `e^x` | `e` no se trata como constante numérica | |
-| 33 | `x*3` | La constante debe ir a la izquierda | |
-| 34 | `-x` | No hay regla para la negación | |
-| 35 | `x/2` | No hay regla para la división | |
-| 36 | `sin(2*x)` | No hay regla de la cadena | |
+| 32 | `e^x` | `e` no se trata como constante numérica | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
+| 33 | `x*3` | La constante debe ir a la izquierda | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
+| 34 | `-x` | No hay regla para la negación | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
+| 35 | `x/2` | No hay regla para la división | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
+| 36 | `sin(2*x)` | No hay regla de la cadena | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
 
 El caso 37 (`u(x)`) se movió a la sección 5: la interfaz rechaza `u` y `v` antes de llamar a Prolog.
 
 ## 5. Validación de la entrada (la interfaz rechaza antes de llamar a Prolog)
 
-Reglas E1–E14 y L1–L5 de `docs/contrato.md`, sección 12. Estos casos también están cubiertos por `ValidadorEntradaTest`; la columna **Resultado obtenido** se refiere a la prueba manual en la interfaz.
+Reglas E1–E14 y L1–L5 de `docs/contrato.md`, sección 12. Estos casos también están cubiertos por `ValidadorEntradaTest`, que valida la misma entrada sin la interfaz. En la columna **Resultado obtenido** se indica si el resultado es manual (en la interfaz) o automático.
 
 | # | Entrada | Campo | Regla | Mensaje esperado (resumen) | Resultado obtenido |
 |---|---|---|---|---|---|
-| 37 | `u(x)` | f(x) | E6 | Función genérica: escriba la función concreta | |
-| 38 | _(vacío)_ | f(x) | E1 | La expresión está vacía | |
-| 39 | `3*x^` | f(x) | E13 | Expresión incompleta | Error de expresión incompleta; campo f(x) en rojo; resultados vacíos (a = 0, b = 2). Aprobado (manual, 16/11/2026) |
-| 40 | `(x+1` | f(x) | E9 | Paréntesis no balanceados | |
-| 41 | `sin()` | f(x) | E10 | Paréntesis vacíos | |
-| 42 | `x**2` | f(x) | E11 | Operadores consecutivos | |
-| 43 | `y+1` | f(x) | E6 | Solo se permite la variable x | |
-| 44 | `foo(x)` | f(x) | E6 | Función no permitida | |
-| 45 | `1,5` | a | L2 | Use punto decimal | |
-| 46 | `abc` | b | L3 | El límite b debe ser un número | |
-| 47 | `1e7` | a | L5 | Debe estar entre -1000000 y 1000000 (límite provisional) | |
-| 48 | 201 caracteres | f(x) | E2 | El máximo es 200 | |
-| 52 | `sinx` | f(x) | E7 | ¿Quiso escribir sin(x)? | |
-| 53 | `sin x` | f(x) | E8 | La función sin debe ir seguida de "(" | |
-| 54 | `2 3` | f(x) | E14 | Falta un operador | |
+| 37 | `u(x)` | f(x) | E6 | Función genérica: escriba la función concreta | Automático ✅ (`ValidadorEntradaTest`) |
+| 38 | _(vacío)_ | f(x) | E1 | La expresión está vacía | Automático ✅ (`ValidadorEntradaTest`) |
+| 39 | `3*x^` | f(x) | E13 | Expresión incompleta | Error de expresión incompleta; campo f(x) en rojo; resultados vacíos (a = 0, b = 2). Aprobado (manual, 16/11/2026) · Automático ✅ (`ValidadorEntradaTest`) |
+| 40 | `(x+1` | f(x) | E9 | Paréntesis no balanceados | Automático ✅ (`ValidadorEntradaTest`) |
+| 41 | `sin()` | f(x) | E10 | Paréntesis vacíos | Automático ✅ (`ValidadorEntradaTest`) |
+| 42 | `x**2` | f(x) | E11 | Operadores consecutivos | Automático ✅ (`ValidadorEntradaTest`) |
+| 43 | `y+1` | f(x) | E6 | Solo se permite la variable x | Automático ✅ (`ValidadorEntradaTest`) |
+| 44 | `foo(x)` | f(x) | E6 | Función no permitida | Automático ✅ (`ValidadorEntradaTest`) |
+| 45 | `1,5` | a | L2 | Use punto decimal | Automático ✅ (`ValidadorEntradaTest`) |
+| 46 | `abc` | b | L3 | El límite b debe ser un número | Automático ✅ (`ValidadorEntradaTest`) |
+| 47 | `1e7` | a | L5 | Debe estar entre -1000000 y 1000000 (límite provisional) | Automático ✅ (`ValidadorEntradaTest`) |
+| 48 | 201 caracteres | f(x) | E2 | El máximo es 200 | Automático ✅ (`ValidadorEntradaTest`) |
+| 52 | `sinx` | f(x) | E7 | ¿Quiso escribir sin(x)? | Automático ✅ (`ValidadorEntradaTest`) |
+| 53 | `sin x` | f(x) | E8 | La función sin debe ir seguida de "(" | Automático ✅ (`ValidadorEntradaTest`) |
+| 54 | `2 3` | f(x) | E14 | Falta un operador | Automático ✅ (`ValidadorEntradaTest`) |
 
 ### 5.1 Entradas que la validación acepta (las transforma el normalizador)
 
 | # | Entrada | Forma normalizada esperada | Resultado obtenido |
 |---|---|---|---|
-| 55 | `3x^2` | `3*x^2` | |
-| 56 | `2*-x` | `2*(-x)` | |
-| 57 | `x^-1` | `x^(-1)` | |
-| 58 | `.5*x` | `0.5*x` | |
-| 59 | `Sen(X)` | `sin(x)` | |
-| 60 | `arcsinh(x)` | `asinh(x)` (pendiente de confirmar por Erick) | |
-| 61 | `(x+1)(x-1)` | `(x+1)*(x-1)` | |
+| 55 | `3x^2` | `3*x^2` | Automático ✅ (`NormalizadorExpresionTest` e `IntegracionPrologTest`) |
+| 56 | `2*-x` | `2*(-x)` | Automático ✅ (`NormalizadorExpresionTest`) |
+| 57 | `x^-1` | `x^(-1)` | Automático ✅ (`NormalizadorExpresionTest` e `IntegracionPrologTest`) |
+| 58 | `.5*x` | `0.5*x` | Automático ✅ (`NormalizadorExpresionTest`) |
+| 59 | `Sen(X)` | `sin(x)` | Automático ✅ (`IntegracionPrologTest`: se resuelve igual que `sin(x)`) |
+| 60 | `arcsinh(x)` | `asinh(x)` (pendiente de confirmar por Erick) | Automático ✅ (`NormalizadorExpresionTest` e `IntegracionPrologTest`) |
+| 61 | `(x+1)(x-1)` | `(x+1)*(x-1)` | Automático ✅ (`NormalizadorExpresionTest`) |
 
 ## 5.2 Revisión visual de la interfaz (vista previa)
 
-Se realiza con `VistaPreviaInterfaz` (ver README). Los datos son simulados.
+Se realiza con `VistaPreviaInterfaz` (ver README). Los datos son simulados. **Estos casos no se han verificado visualmente** y siguen pendientes; `PanelEntradaTest` y `PanelResultadoTest` cubren parte de la lógica de los paneles (errores en campos, notas, «No disponible», recuadro de error), pero no sustituyen la revisión visual.
 
 | # | Acción | Resultado esperado | Resultado obtenido |
 |---|---|---|---|
@@ -171,6 +177,7 @@ Usan la ventana real (sin mostrarla) y servicios simulados con lambdas, sincroni
 | Temporizador antiguo | Limpiar detiene el temporizador; si el de una operación anterior se disparara durante un cálculo nuevo, no lo afecta |
 | Cerrar la ventana | Con un cálculo en curso: el trabajo se cancela y el temporizador se detiene; la respuesta posterior del servicio no provoca errores |
 | Tiempo máximo inválido | Cero, negativo o nulo se rechazan |
+| Modo `--mock` (casos 51 y 74–78) | Con el `ServicioMock` real: resultado simulado de `3*x^2`, «Integral no soportada», «Fuera del dominio», respuesta lenta con Resolver, Limpiar y campos desactivados, y b inválido sin consultar el mock |
 
 Las pruebas del controlador se repitieron 30 veces seguidas sin fallos, para descartar condiciones de carrera.
 
@@ -178,11 +185,11 @@ Las pruebas del controlador se repitieron 30 veces seguidas sin fallos, para des
 
 | # | Acción | Resultado esperado | Resultado obtenido |
 |---|---|---|---|
-| 74 | `ejecutar.bat --mock`, escribir `3*x^2`, a = 0, b = 2, Enter | "Calculando…" y luego primitiva `x^3 + C`, integral 8, área 8 | |
-| 75 | f(x) = `x^5` (respuesta lenta del mock, 3 s) | Campos y botones desactivados durante el cálculo; luego `x^6/6 + C` y área "No disponible" | |
-| 76 | f(x) = `x*sin(x)` | Error "Integral no soportada" | |
-| 77 | f(x) = `x^(-1)`, a = -1, b = 1 | Error "Fuera del dominio" | |
-| 78 | b = `abc` | Error en el campo b; el mock no se consulta | |
+| 74 | `ejecutar.bat --mock`, escribir `3*x^2`, a = 0, b = 2, Enter | "Calculando…" y luego primitiva `x^3 + C`, integral 8, área 8 | Aprobado (manual, 16/11/2026) · Automático ✅ (`ControladorIntegralTest.modoMockEnLaInterfaz`) |
+| 75 | f(x) = `x^5` (respuesta lenta del mock, 3 s) | Campos y botones desactivados durante el cálculo; luego `x^6/6 + C` y área "No disponible" | Automático ✅ (`ControladorIntegralTest.modoMockLento`, con la demora reducida a 0.3 s) |
+| 76 | f(x) = `x*sin(x)` | Error "Integral no soportada" | Automático ✅ (`ControladorIntegralTest.modoMockEnLaInterfaz`) |
+| 77 | f(x) = `x^(-1)`, a = -1, b = 1 | Error "Fuera del dominio" | Automático ✅ (`ControladorIntegralTest.modoMockEnLaInterfaz`) |
+| 78 | b = `abc` | Error en el campo b; el mock no se consulta | Automático ✅ (`ControladorIntegralTest.modoMockEntradaInvalida`) |
 
 ## 5.4 Pruebas manuales en la aplicación real
 
@@ -216,11 +223,30 @@ Solo se marcaron en las secciones anteriores los casos que coinciden exactamente
 
 | # | Situación | Código | Resultado obtenido |
 |---|---|---|---|
-| 49 | `swipl` no encontrado | `PROLOG_NO_DISPONIBLE` | |
-| 50 | La consulta a Prolog tarda más de 5 s | `TIEMPO_AGOTADO` | |
-| 51 | Mock lento (3 s): el botón Resolver se desactiva mientras calcula | — | |
-| 96 | Falta un archivo de `base_conocimiento/` (por ejemplo `bc_derivadas.pl`) | `INTERNO` («No se encontró …»); la ventana lo avisa al abrir | |
-| 97 | Un archivo de la base está vacío o le falta un predicado | `INTERNO` («La base de conocimiento está incompleta …»), no `NO_SOPORTADA` | |
-| 98 | Error de sintaxis en un archivo de la base | `INTERNO` («Error al cargar la base de conocimiento …») | |
+| 49 | `swipl` no encontrado | `PROLOG_NO_DISPONIBLE` | Automático ✅ (`ServicioPrologTest`: `swipl` ausente o inexistente → `PROLOG_NO_DISPONIBLE`; `MainTest`: aviso al abrir) |
+| 50 | La consulta a Prolog tarda más de 5 s | `TIEMPO_AGOTADO` | Automático ✅ (`IntegracionPrologTest`: tiempo máximo de 1 ms con SWI-Prolog real) |
+| 51 | Mock lento (3 s): el botón Resolver se desactiva mientras calcula | — | Automático ✅ (`ControladorIntegralTest.modoMockLento`, con la demora reducida a 0.3 s en lugar de 3 s) |
+| 96 | Falta un archivo de `base_conocimiento/` (por ejemplo `bc_derivadas.pl`) | `INTERNO` («No se encontró …»); la ventana lo avisa al abrir | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
+| 97 | Un archivo de la base está vacío o le falta un predicado | `INTERNO` («La base de conocimiento está incompleta …»), no `NO_SOPORTADA` | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
+| 98 | Error de sintaxis en un archivo de la base | `INTERNO` («Error al cargar la base de conocimiento …») | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
 
 Los casos 79–98 también están automatizados en `IntegracionPrologTest`, que se omite si no hay SWI-Prolog o falta algún archivo de la base.
+
+## 7. Casos agregados en la corrección final (16/11/2026)
+
+Simplificación de la primitiva (contrato, sección 3.1), errores de dominio frente a desbordamiento (contrato, sección 9.1), funciones que se escriben pero no se pueden integrar (Ayuda > Sintaxis) y aviso de configuración (contrato, sección 14.2).
+
+| # | f(x) o situación | a | b | Resultado esperado | Resultado obtenido |
+|---|---|---|---|---|---|
+| 99 | `3*x^2` | 0 | 2 | Primitiva `x^3`; integral 8 | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
+| 100 | `x^(-2)` | 1 | 2 | Primitiva `-1/x`; integral 0.5 | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
+| 101 | `2*(x+1)` | 0 | 2 | Primitiva `x^2+2*x`; integral 8 | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
+| 102 | `x^(-3)` | 1 | 2 | Primitiva `-1/(2*x^2)`; integral 0.375 | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
+| 103 | `3*sin(x)` | 0 | π | Primitiva `-3*cos(x)`; integral 6 | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
+| 104 | `x+-1` | 0 | 1 | Primitiva `x^2/2-x`; integral -0.5 | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
+| 105 | `2^x` | 0 | 1000000 | `DOMINIO`, motivo «el valor es demasiado grande para calcularse» (desbordamiento, no singularidad) | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
+| 106 | `exp(x)`, `ln(x)`, `log(x)`, `e` | 1 | 2 | `NO_SOPORTADA`: se aceptan al escribir, pero no hay reglas para integrarlas | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
+| 107 | `x*sin(x)` (modo real) | 1 | 2 | `NO_SOPORTADA` | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
+| 108 | `swipl.ruta` apunta a un archivo que no existe | — | — | Franja de aviso al abrir la ventana; la ventana se abre igualmente | Automático ✅ (`MainTest`) |
+
+En los casos 31, 93, 94 y 95 (sección 3), el motivo del error ahora indica que la función no está definida en algún punto del intervalo, no que el valor sea demasiado grande. Lo comprueba `IntegracionPrologTest.singularidadEnUnExtremoNoEsDesbordamiento`.

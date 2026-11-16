@@ -1,6 +1,7 @@
 package integrales.servicio;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -120,15 +121,17 @@ class IntegracionPrologTest {
 
     // Regresión A1: si los cambios de signo no se pueden obtener con confianza, el área queda
     // como no disponible en vez de devolver un valor incorrecto.
-    @ParameterizedTest(name = "#{0}: ∫ |{1}| de {2} a {3}: área no disponible")
+    // También se compara la integral definida, que sí se informa.
+    @ParameterizedTest(name = "#{0}: ∫ |{1}| de {2} a {3}: área no disponible, integral {4}")
     @CsvSource(delimiter = ';', value = {
-            "89; sin(x)+0.5; 0; 100000",
-            "90; sin(x);     0; 1000000",
+            "89; sin(x)+0.5; 0; 100000;  50001.999361",
+            "90; sin(x);     0; 1000000; 0.063248",
     })
-    void areaNoConfiableNoSeInforma(int caso, String f, double a, double b) {
+    void areaNoConfiableNoSeInforma(int caso, String f, double a, double b, double integral) {
         ResultadoIntegral r = resolver(f, a, b);
         assertTrue(r.exito(), "caso " + caso + ": " + r);
         assertNull(r.areaGeometrica(), "área no confiable: " + r.areaGeometrica());
+        assertEquals(integral, r.integralDefinida(), 1e-6 * Math.max(1, Math.abs(integral)), "caso " + caso);
     }
 
     // Sección 5.1: entradas que acepta la validación y transforma el normalizador.
@@ -166,6 +169,89 @@ class IntegracionPrologTest {
     void dominio(int caso, String f, double a, double b) {
         ResultadoIntegral r = resolver(f, a, b);
         assertEquals(ResultadoIntegral.DOMINIO, r.codigoError(), "caso " + caso + ": " + r);
+    }
+
+    // Casos 31, 93, 94 y 95: una singularidad en un extremo se informa como función no definida,
+    // no como un valor demasiado grande.
+    @ParameterizedTest(name = "#{0}: ∫ {1} de {2} a {3} → DOMINIO por función no definida")
+    @CsvSource(delimiter = ';', value = {
+            "31; atanh(x); 0;  1",
+            "93; x^(-1);   0;  1",
+            "94; x^(-2);   0;  1",
+            "95; atanh(x); -1; 0",
+    })
+    void singularidadEnUnExtremoNoEsDesbordamiento(int caso, String f, double a, double b) {
+        ResultadoIntegral r = resolver(f, a, b);
+        assertEquals(ResultadoIntegral.DOMINIO, r.codigoError(), "caso " + caso + ": " + r);
+        assertTrue(r.detalle().contains("no está definida"), "caso " + caso + ": " + r.detalle());
+        assertFalse(r.detalle().contains("demasiado grande"), "caso " + caso + ": " + r.detalle());
+    }
+
+    // Un desbordamiento numérico auténtico se sigue distinguiendo de una función no definida.
+    @Test
+    void desbordamientoNumericoSeIndicaComoTal() {
+        ResultadoIntegral r = resolver("2^x", 0, 1_000_000);
+        assertEquals(ResultadoIntegral.DOMINIO, r.codigoError(), r.toString());
+        assertTrue(r.detalle().contains("demasiado grande"), r.detalle());
+        assertFalse(r.detalle().contains("no está definida"), r.detalle());
+    }
+
+    // Sección 4 (casos 32-36) y funciones que se escriben pero no se pueden integrar.
+    @ParameterizedTest(name = "{0}: ∫ {1} → NO_SOPORTADA")
+    @CsvSource(delimiter = ';', value = {
+            "32;   e^x",
+            "33;   x*3",
+            "34;   -x",
+            "35;   x/2",
+            "36;   sin(2*x)",
+            "S10;  exp(x)",
+            "S11;  ln(x)",
+            "S12;  log(x)",
+            "S13;  e",
+            "M4;   x*sin(x)",
+    })
+    void integralNoSoportada(String caso, String f) {
+        ResultadoIntegral r = resolver(f, 1, 2);
+        assertEquals(ResultadoIntegral.NO_SOPORTADA, r.codigoError(), "caso " + caso + ": " + r);
+    }
+
+    // Caso 50: con un tiempo máximo mínimo la consulta real a SWI-Prolog se corta.
+    @Test
+    void consultaQueTardaDemasiadoEsTiempoAgotado() {
+        ServicioProlog impaciente = new ServicioProlog(
+                new ConfiguracionProlog(config.swipl().orElseThrow(), config.directorioProlog(), 1));
+        ResultadoIntegral r = impaciente.resolver(new SolicitudIntegral("3*x^2", 0, 2));
+        assertEquals(ResultadoIntegral.TIEMPO_AGOTADO, r.codigoError(), r.toString());
+    }
+
+    // Simplificación de la primitiva: la forma devuelta y el valor de la integral.
+    @ParameterizedTest(name = "∫ {0} = {1}")
+    @CsvSource(delimiter = ';', value = {
+            "3*x^2;         x^3;                0; 2; 8.000000",
+            "x^(-2);        -1/x;               1; 2; 0.500000",
+            "2*(x+1);       x^2+2*x;            0; 2; 8.000000",
+            "x^3-x;         x^4/4-x^2/2;        -2; 2; 0.000000",
+            "3*x;           3*x^2/2;            1; 3; 12.000000",
+            "x+-1;          x^2/2-x;            0; 1; -0.500000",
+            "3*sin(x);      -3*cos(x);          0; 3.141593; 6.000000",
+            "0.5*x;         0.5*x^2/2;          0; 2; 1.000000",
+            // Coeficientes decimales: se conserva la fracción, sin aproximaciones como 0.1666…
+            "0.5*x^2;       0.5*x^3/3;          0; 1; 0.166667",
+            "1.1*x^2;       1.1*x^3/3;          0; 1; 0.366667",
+            "0.7*x^(-3);    -0.7/(2*x^2);       1; 2; 0.262500",
+            "0.3*x^(-2);    -0.3/x;             1; 2; 0.150000",
+            "2.5*(x+1);     2.5*x^2/2+2.5*x;    0; 1; 3.750000",
+            "x^(-3);        -1/(2*x^2);         1; 2; 0.375000",
+            "2*x^(-2);      -2/x;               1; 2; 1.000000",
+            "x^2-2*x+1;     x^3/3-x^2+x;        0; 2; 0.666667",
+            "x^(-1);        ln(abs(x));         1; 2; 0.693147",
+            "asin(x);       x*asin(x)+raiz(1-x^2,2); 0; 1; 0.570796",
+    })
+    void primitivaSimplificada(String f, String primitiva, double a, double b, double integral) {
+        ResultadoIntegral r = resolver(f, a, b);
+        assertTrue(r.exito(), f + ": " + r);
+        assertEquals(primitiva, r.primitiva(), f);
+        assertEquals(integral, r.integralDefinida(), TOLERANCIA, f);
     }
 
     // Sección 4, caso 37: las funciones simbólicas nunca se resuelven.

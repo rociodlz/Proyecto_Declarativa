@@ -323,22 +323,32 @@ public class VentanaPrincipal extends JFrame {
     // ------------------------------------------------------------------
 
     static final String TEXTO_SINTAXIS = """
-            Escriba una función de la variable x.
-
-            Operadores:  +  -  *  /  ^ (potencia)
-            Ejemplos:  3*x^2   x^-1   2^x   sin(x)+cos(x)   0.5*x
+            CÓMO ESCRIBIR LA FUNCIÓN
+            Use la variable x y los operadores  +  -  *  /  ^ (potencia).
             Multiplicación implícita:  3x y 2(x+1) se interpretan como 3*x y 2*(x+1).
-
-            Funciones:  sin (sen), cos, tan, asin, acos, atan,
-            sinh (sh), cosh, tanh, asinh, acosh, atanh, exp, ln (log).
-            También se aceptan:  arcsin, arccos, arctan, arcsinh, arccosh, arctanh.
-            Constante:  e.   Las funciones trigonométricas usan radianes.
-
-            Decimales:  use punto (0.5), no coma.
+            Decimales con punto (0.5), no con coma. Se aceptan mayúsculas.
             Límites a y b:  números entre -1000000 y 1000000. Se permiten a = b y a > b.
 
-            La base de conocimiento decide si puede resolver cada integral; si no tiene \
-            una regla para la expresión, se indica que la integral no está soportada.""";
+            QUÉ SE PUEDE INTEGRAR
+            • Constantes y x:  5,  x
+            • Potencias de x con exponente entero:  x^3,  x^-1,  x^-2
+            • a^x con a numérico:  2^x
+            • sin, cos, tan, asin, acos, atan, sinh, cosh, tanh, asinh, acosh, atanh, \
+            con argumento exactamente x:  sin(x),  atanh(x)
+            • Sumas y restas de las anteriores, y su producto por una constante escrita \
+            a la izquierda:  3*x^2 + 2*cos(x)
+            Las funciones trigonométricas usan radianes. Alias aceptados:  sen, sh, \
+            arcsin, arccos, arctan, arcsinh, arccosh, arctanh.
+
+            SE ESCRIBEN, PERO NO SE PUEDEN INTEGRAR
+            exp, ln (log) y la constante e son válidas al escribir, pero la base de \
+            conocimiento no tiene reglas para integrarlas: e^x, exp(x), ln(x) y e \
+            responden «Integral no soportada».
+
+            OTRAS LIMITACIONES
+            No se integran productos de funciones (x*sin(x)), funciones de un argumento \
+            distinto de x (sin(2*x)), la constante a la derecha (sin(x)*3), divisiones \
+            (1/x, x/2), la negación (-x) ni potencias no enteras (x^0.5).""";
 
     static final String TEXTO_ACERCA_DE = """
             Sistema de solución de integrales

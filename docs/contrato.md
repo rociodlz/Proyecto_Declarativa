@@ -3,6 +3,8 @@
 > **Estado: v1 APROBADA** el 15/11/2026 por Henry, Erick y Rocío.
 > **v1.1 PROPUESTA — pendiente de aprobación:** secciones 4.1, 12, 13, 14 y 15, y los cambios de las secciones 2, 3, 6, 7 y 9, marcados con 🟡.
 > Los cambios posteriores se acuerdan entre los tres y se registran en la sección 11.
+>
+> **Implementación (16/11/2026):** todo lo descrito en v1.1 está **implementado** en el repositorio y **verificado** con pruebas automáticas (`mvnw clean verify`, incluida `IntegracionPrologTest` con SWI-Prolog 10.1.13). Implementado y verificado no significa aprobado: la **aprobación formal** de v1.1 sigue pendiente.
 
 Convención de estados usada en todo el documento:
 
@@ -30,11 +32,11 @@ Todos los archivos Prolog están en `base_conocimiento/`, en la raíz del reposi
 
 | Archivo | Responsable | Estado |
 |---|---|---|
-| `bc_integrales.pl` | Henry | Existe (rama `base_conocimiento`) |
-| `bc_derivadas.pl` | Henry | Existe (rama `base_conocimiento`) |
-| `bc_simplificaciones.pl` | Henry | Existe (rama `base_conocimiento`) |
-| `bc_simplificaciones_algebraicas.pl` | Henry | Existe (rama `base_conocimiento`) |
-| `bc_evaluacion.pl` | Por acordar (🟡 propuesta de Erick en el PR #7, pendiente de que Henry la acepte o la reemplace) | Pendiente |
+| `bc_integrales.pl` | Henry | Existe (en `main`, PR #10) |
+| `bc_derivadas.pl` | Henry | Existe (en `main`, PR #10) |
+| `bc_simplificaciones.pl` | Henry | Existe (en `main`, PR #10) |
+| `bc_simplificaciones_algebraicas.pl` | Henry | Existe (en `main`, PR #10) |
+| `bc_evaluacion.pl` | Por acordar (🟡 propuesta de Erick en el PR #7, pendiente de que Henry la acepte o la reemplace) | Existe (en `main`, PR #7); aceptación pendiente |
 | `puente.pl` | Erick | Existe |
 
 Los predicados originales de Henry **no se renombran ni se modifican** como parte de este contrato.
@@ -46,11 +48,25 @@ Los predicados originales de Henry **no se renombran ni se modifican** como part
 | Predicado | Archivo | Estado | Descripción |
 |---|---|---|---|
 | `integral(+F, +X, -R)` | `bc_integrales.pl` | **Existe** | Integral de `F` respecto a `X`, simplificada. Falla si no hay regla aplicable. Para funciones simbólicas `u(x)`, `v(x)` devuelve un término que contiene `pendiente(_, _)`. |
-| `integrar(+F, -P)` | `bc_evaluacion.pl` | **Pendiente** (🟡 propuesta en el PR #7) | Adaptador: llama a `integral(F, x, P)` y falla si `P` contiene `pendiente(_, _)`. 🟡 Si falta un predicado de la base (`existence_error`), lanza el error en vez de fallar. |
-| `evaluar_area(+P, +A, +B, -V)` | `bc_evaluacion.pl` | **Pendiente** (🟡 propuesta en el PR #7) | Integral definida `V = P(B) − P(A)`. Lanza un error de dominio cuando la evaluación numérica falla o cuando detecta una singularidad en `[A, B]` (ver sección 9). 🟡 El error de dominio propio es `error(dominio(Motivo), _)`; `puente.pl` lo convierte en `DOMINIO`. |
-| `area_geometrica(+F, +P, +A, +B, -Ag)` | `bc_evaluacion.pl` | **Opcional** (🟡 propuesta en el PR #7) | Área geométrica `∫|F| dx` en `[min(A,B), max(A,B)]`, siempre ≥ 0, dividiendo el intervalo en los cambios de signo de `F`. 🟡 Falla si no puede obtenerlos de forma confiable (sección 9.2). |
+| `integrar(+F, -P)` | `bc_evaluacion.pl` | **Existe** (🟡 propuesta en el PR #7, aceptación pendiente) | Adaptador: llama a `integral(F, x, P)` y falla si `P` contiene `pendiente(_, _)`. 🟡 Si falta un predicado de la base (`existence_error`), lanza el error en vez de fallar. 🟡 La primitiva se simplifica con `simplificar_primitiva/2` (sección 3.1). |
+| `evaluar_area(+P, +A, +B, -V)` | `bc_evaluacion.pl` | **Existe** (🟡 propuesta en el PR #7, aceptación pendiente) | Integral definida `V = P(B) − P(A)`. Lanza un error de dominio cuando la evaluación numérica falla o cuando detecta una singularidad en `[A, B]` (ver sección 9). 🟡 El error de dominio propio es `error(dominio(Motivo), _)`; `puente.pl` lo convierte en `DOMINIO`. |
+| `area_geometrica(+F, +P, +A, +B, -Ag)` | `bc_evaluacion.pl` | **Existe** (opcional; 🟡 propuesta en el PR #7, aceptación pendiente) | Área geométrica `∫|F| dx` en `[min(A,B), max(A,B)]`, siempre ≥ 0, dividiendo el intervalo en los cambios de signo de `F`. 🟡 Falla si no puede obtenerlos de forma confiable (sección 9.2). |
 
-Los estados de estas tres filas pasarán a **Existe** cuando Henry confirme la implementación de `bc_evaluacion.pl`.
+Las tres filas están implementadas en `main` y verificadas por `IntegracionPrologTest`. Falta que Henry acepte formalmente `bc_evaluacion.pl` o lo reemplace.
+
+### 3.1 🟡 Propuesta v1.1: simplificación de la primitiva (`simplificar_primitiva/2`)
+
+`integral/3` ya simplifica con `simplificar_algebra/2`, que llega a un punto fijo pero no tiene reglas para constantes que multiplican fracciones o sumas, exponentes negativos ni signos. Por eso devolvía formas como `3*(x^3/3)`, `x^ -1/ -1` o `2*(x^2/2+x)`.
+
+`integrar/2` aplica después una pasada adicional, recursiva y repetida hasta que el resultado no cambia (máximo 50 pasadas). **No modifica** `bc_simplificaciones*.pl`, que también usa `bc_derivadas.pl`. Reglas:
+
+- neutros y signos: `1*F`, `-1*F`, `F/1`, `-(-F)`, `C*(-F)`;
+- constante por fracción o producto: `3*(x^3/3)` → `x^3`, `3*(x^2/2)` → `3*x^2/2`. Los coeficientes solo se operan cuando el resultado es exacto (enteros, o un factor igual a ±1). Con decimales se conserva la fracción: `0.5*(x^3/3)` → `0.5*x^3/3`, no `0.16666666666666666*x^3`;
+- distribución de una constante sobre sumas y restas: `2*(x^2/2+x)` → `x^2+2*x`;
+- términos negativos: `F + -1*G` → `F-G`;
+- exponentes enteros negativos: `x^(-1)` → `1/x`, por lo que `x^ -1/ -1` → `-1/x`.
+
+Todas son identidades válidas en todo el dominio de la expresión: no se cancelan factores con `x`, no se combinan potencias ni raíces. La integral definida y el área no cambian (verificado en `IntegracionPrologTest`). Las reglas están en `bc_evaluacion.pl`; según la sección 10, la simplificación es responsabilidad de Henry, por lo que queda **pendiente su revisión**. Si lo prefiere, se pueden trasladar a `bc_simplificaciones_algebraicas.pl`.
 
 ### Notación de la base de conocimiento (según `base_conocimiento/README.txt`)
 
@@ -87,7 +103,7 @@ Limitaciones conocidas de `integral/3` (devuelve `false`): `x*k` (constante a la
 | Exponente negativo entre paréntesis | `x^-1` → `x^(-1)` (sin paréntesis es error de sintaxis en Prolog) |
 | Punto decimal | `0.5` |
 
-### 4.1 🟡 Propuesta v1.1: reglas adicionales de normalización (pendiente de confirmación de Erick)
+### 4.1 🟡 Propuesta v1.1: reglas adicionales de normalización (implementada en `NormalizadorExpresion` y verificada en `NormalizadorExpresionTest`; confirmación formal pendiente)
 
 La validación de la interfaz (sección 12) acepta las formas siguientes. Se comprobó con SWI-Prolog 10.1.13 que **Prolog no puede leerlas tal como se escriben** (`syntax_error(operator_expected)`), por lo que el normalizador debe transformarlas:
 
@@ -188,6 +204,8 @@ Los ceros de `G` se calculan **de forma analítica**, sin muestreo, cuando `G` e
 - `sin`, `cos` o `tan` de un argumento lineal: todos los `kπ` y `π/2 + kπ` del intervalo, sin importar su longitud (`tan(x)` de 0 a 4000π da `DOMINIO`);
 - productos, cocientes, potencias y funciones con un único cero de las anteriores.
 
+🟡 La continuidad se verifica **antes** de evaluar `P` en los extremos. Así, una singularidad en un extremo (`x^(-1)` en `[0, 1]`, `atanh(x)` en `[-1, 0]`) se informa como «… no está definida en algún punto de [a, b]», y el motivo «el valor es demasiado grande para calcularse» queda solo para un desbordamiento numérico auténtico (`2^x` en `[0, 1000000]`). Los dos casos usan el código `DOMINIO`; separarlos en códigos distintos requeriría cambiar la sección 7 y queda como decisión pendiente.
+
 Las restricciones de dominio de `asin`, `acos`, `acosh`, `atanh`, `ln` y las raíces pares se detectan al evaluar `P` en los extremos, porque sus argumentos en la base de conocimiento son monótonos (`x`, `1-x^2` en `[0, 1]`, …).
 
 Si `G` no es reconocible, se muestrea con una separación de 0.05 como máximo (hasta 40000 puntos). Si el intervalo es demasiado largo para eso, se responde `DOMINIO` con el motivo «no se puede verificar…»: no se adivina. Con las reglas actuales de `integral/3` este caso no ocurre.
@@ -220,6 +238,7 @@ Las pruebas que necesitan `swipl` deben **omitirse** (no fallar) cuando `swipl` 
 | v1 | 15/11/2026 | Primera versión basada en el código real de `base_conocimiento` (`1de3224`). | Henry, Erick y Rocío |
 | v1.1 🟡 | 15/11/2026 | Normalización adicional (4.1), validación de la entrada (12), responsable de normalizar (13), integración de la interfaz con `Main` (14) y controlador (15). | Pendiente |
 | v1.1 🟡 | 16/11/2026 | Archivos obligatorios y error `INTERNO` por base incompleta (2, 7); estados de `bc_evaluacion.pl` y `error(dominio(Motivo), _)` (3); área siempre ≥ 0 o `-` si no es confiable (6, 9.2); detección analítica de singularidades (9.1). | Pendiente |
+| v1.1 🟡 | 16/11/2026 | Simplificación de la primitiva con `simplificar_primitiva/2` (3.1); continuidad antes de evaluar los extremos, para no confundir una singularidad con un desbordamiento (9.1); aviso al abrir si `swipl.ruta` no existe (14.2); estados actualizados a lo que ya está en `main` (2, 3, 4.1, 14.2, 15.6). | Pendiente |
 
 ## 12. 🟡 Propuesta v1.1: validación de la entrada (implementada por Rocío)
 
@@ -293,7 +312,11 @@ Por ejemplo, `x^(-1)` con a = −1 y b = 1 pasa la validación porque está bien
 - Todos los métodos públicos de la ventana y los paneles deben llamarse desde el EDT; fuera de él lanzan `IllegalStateException`.
 - El formateador muestra `raiz(F,2)` como `sqrt(F)`, `raiz(F,N)` como `(F^(1/N))` y `abs(F)` como `|F|`, solo cuando la transformación conserva el significado; si no, mantiene la forma original. Conserva los espacios que escribe Prolog (`2* -cos(x)`). El área `null` se muestra como "No disponible".
 
-### 14.2 Propuesta para el `Main` de Erick (pendiente de confirmar)
+### 14.2 `Main` de Erick (implementado en el PR #7; aprobación formal pendiente)
+
+`Main.iniciarInterfaz` crea la ventana y el controlador como se propuso. Además, `Main.avisoInicial` muestra una franja de aviso al abrir: en el modo `--mock`, si no se encuentra `swipl`, 🟡 si la ruta configurada en `swipl.ruta` no existe, y si falta un archivo de `base_conocimiento/`. La ventana se abre igualmente en todos esos casos.
+
+Propuesta original:
 
 ```java
 SwingUtilities.invokeLater(() -> {
@@ -361,4 +384,4 @@ En todos los casos la interfaz se rehabilita.
 
 ### 15.6 Pendiente
 
-- `Main.iniciarInterfaz` (Erick) debe crear el controlador como en la sección 14.2.
+- Ninguno de implementación: `Main.iniciarInterfaz` ya crea el controlador como en la sección 14.2 (PR #7). Falta la aprobación formal de v1.1.

@@ -103,7 +103,7 @@ Si aparece el error `PROLOG_NO_DISPONIBLE`, SWI-Prolog no está instalado o no s
 
 Ejecute `ejecutar.bat` (Windows) o `./ejecutar.sh` (Linux / macOS) sin argumentos, como se indica en [Ejecución](#ejecución). Se abre la ventana **Sistema de Integrales**, con dos tarjetas: **Datos de la integral** y **Resultado**.
 
-Si aparece una franja de aviso en la parte superior, lea su mensaje antes de continuar: indica que no se encontró SWI-Prolog, que falta un archivo de `base_conocimiento/` o que la aplicación está en modo de prueba (`--mock`).
+Si aparece una franja de aviso en la parte superior, lea su mensaje antes de continuar: indica que no se encontró SWI-Prolog, que la ruta configurada en `swipl.ruta` no existe, que falta un archivo de `base_conocimiento/` o que la aplicación está en modo de prueba (`--mock`). La ventana se abre igualmente.
 
 ### 2. Escribir la función f(x)
 
@@ -114,7 +114,7 @@ Escriba la función en el campo **f(x) =** usando la variable `x`:
 - Se aceptan mayúsculas y la multiplicación implícita: `3x` se interpreta como `3*x`, y `Sen(X)` como `sin(x)`.
 - Los decimales se escriben con punto: `0.5`, no `0,5`.
 
-El menú **Ayuda > Sintaxis** (tecla **F1**) muestra este resumen dentro de la aplicación.
+El menú **Ayuda > Sintaxis** (tecla **F1**) muestra este resumen dentro de la aplicación. Distingue cómo se escribe la función, qué se puede integrar, qué funciones se escriben pero no se pueden integrar y las limitaciones (ver [Limitaciones](#limitaciones)).
 
 ### 3. Ingresar los límites a y b
 
@@ -132,7 +132,7 @@ Si los datos son válidos, la tarjeta Resultado muestra «Calculando…» y en l
 
 | Bloque | Qué muestra |
 |---|---|
-| **Integral indefinida** | La primitiva `F(x) + C` que devolvió la base de conocimiento. Puede aparecer sin simplificar del todo; por ejemplo, `3*(x^3/3) + C` equivale a `x^3 + C`. `\|x\|` es el valor absoluto, `ln` el logaritmo natural y `sqrt` la raíz cuadrada. |
+| **Integral indefinida** | La primitiva `F(x) + C` que devolvió la base de conocimiento, simplificada con reglas algebraicas básicas (por ejemplo `x^3 + C` para `3*x^2`, o `-1/x + C` para `x^-2`). `\|x\|` es el valor absoluto, `ln` el logaritmo natural y `sqrt` la raíz cuadrada. |
 | **Integral definida** | `F(b) − F(a)`, con signo: es negativa cuando predomina la parte de la función que está bajo el eje x. |
 | **Área geométrica** | `∫\|f(x)\| dx` en el intervalo: el área entre la curva y el eje x, siempre ≥ 0. Es un resultado numérico que puede ser aproximado. Cuando el sistema no puede calcularla con suficiente confiabilidad (por ejemplo, en intervalos muy largos), muestra **«No disponible»**. |
 
@@ -152,7 +152,7 @@ Pulse **Limpiar** (**Alt+L**) para borrar la función, los límites y el resulta
 
 Al pulsar Resolver:
 
-- **Integral indefinida:** una posible primitiva es `3*(x^3/3) + C`, equivalente a `x^3 + C`. La forma exacta en que se muestra depende de la simplificación de la base de conocimiento.
+- **Integral indefinida:** `x^3 + C`. La forma exacta en que se muestra depende de la simplificación de la base de conocimiento.
 - **Integral definida:** `8`, porque `2³ − 0³ = 8`.
 - **Área geométrica:** `8`, igual a la integral, porque `3x²` no es negativa en `[0, 2]`.
 
@@ -167,7 +167,7 @@ Con `x^3-x` entre `-2` y `2`, en cambio, la integral definida es `0` y el área 
 | Título | Significado |
 |---|---|
 | Integral no soportada | La base de conocimiento no tiene una regla para esa expresión (ver [Limitaciones](#limitaciones)). |
-| Fuera del dominio | La función no está definida en todo `[a, b]` o tiene una singularidad dentro del intervalo; por ejemplo, `x^-1` entre `-1` y `1`, o `tan(x)` entre `0` y `2`. Pruebe con otros límites. |
+| Fuera del dominio | La primitiva no se puede evaluar en todo `[a, b]`: la función no está definida en algún punto o tiene una singularidad (por ejemplo `x^-1` entre `-1` y `1`, o `tan(x)` entre `0` y `2`), o el valor es demasiado grande para calcularse (por ejemplo `2^x` entre `0` y `1000000`). El detalle técnico indica cuál de los dos casos es. Pruebe con otros límites. |
 | Expresión no reconocida | SWI-Prolog no pudo leer la expresión. |
 | SWI-Prolog no disponible | No se encontró `swipl`. Revise la [Instalación](#instalación) o `swipl.ruta` en `config.properties`. |
 | Tiempo agotado | El cálculo tardó más de lo permitido y se canceló. |
@@ -191,7 +191,7 @@ Además de las [limitaciones del cálculo](#limitaciones-del-cálculo):
 - La base de conocimiento integra constantes numéricas, `x`, `x^n` (con `n` entero, incluido `x^-1`), `a^x` con `a` numérico, y `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `sinh`, `cosh`, `tanh`, `asinh`, `acosh` y `atanh` con argumento exactamente `x`. También integra sumas y restas de estas funciones y su producto por una constante escrita a la izquierda, por ejemplo `3*x`, `3*sin(x)` o `2*x^2+3*cos(x)`.
 - No integra, y responde «Integral no soportada»: la constante escrita a la derecha (`sin(x)*3`), productos de funciones (`x*sin(x)`), funciones de un argumento distinto de `x` (`sin(2*x)`), `e^x`, `exp(x)`, `ln(x)`, `x^0.5`, `1/x`, `x/2` ni `-x`. La validación acepta `exp`, `ln`, `log` y la constante `e` en la expresión, pero la base de conocimiento no tiene reglas para integrarlas. La lista completa está en `docs/contrato.md`, sección 3.
 - `sqrt` no se acepta en la expresión.
-- La primitiva se muestra como la devuelve la base de conocimiento, que no siempre la simplifica por completo.
+- La primitiva se simplifica con reglas algebraicas básicas: constantes que multiplican fracciones o sumas, signos y exponentes enteros negativos (`x^3` en lugar de `3*(x^3/3)`, `-1/x` en lugar de `x^ -1/ -1`). No se aplican identidades trigonométricas ni se factoriza, y las raíces se muestran como `sqrt(...)`.
 
 ### Vista previa de la interfaz (desarrollo)
 

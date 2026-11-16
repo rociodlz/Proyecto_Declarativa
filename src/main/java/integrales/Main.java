@@ -10,6 +10,8 @@ import integrales.servicio.ServicioProlog;
 import integrales.ui.VentanaPrincipal;
 
 import java.awt.GraphicsEnvironment;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.SwingUtilities;
@@ -87,6 +89,13 @@ public final class Main {
         if (configuracion.swipl().isEmpty()) {
             return "No se encontró SWI-Prolog (swipl). Instálelo o indique su ruta en "
                     + ConfiguracionProlog.ARCHIVO + " (swipl.ruta).";
+        }
+        Path swipl = configuracion.swipl().get();
+        // Una ruta con carpeta que no existe es un error de configuración. Un nombre solo
+        // (por ejemplo "swipl") se busca en el PATH al ejecutarlo, así que no se comprueba aquí.
+        if (swipl.getParent() != null && !Files.isRegularFile(swipl)) {
+            return "La ruta de SWI-Prolog configurada no existe: " + swipl + ". Corrija swipl.ruta en "
+                    + ConfiguracionProlog.ARCHIVO + " o déjela vacía para buscarlo automáticamente.";
         }
         return configuracion.archivoFaltante()
                 .map(archivo -> "Falta " + archivo + " en " + configuracion.directorioProlog()
