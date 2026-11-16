@@ -3,6 +3,8 @@ package integrales.controlador;
 import integrales.modelo.ResultadoIntegral;
 import integrales.modelo.SolicitudIntegral;
 import integrales.servicio.ServicioIntegrales;
+import integrales.servicio.ServicioMock;
+import integrales.ui.FormateadorResultado;
 import integrales.ui.PanelEntrada;
 import integrales.ui.PanelResultado;
 import integrales.ui.SondaInterfaz;
@@ -600,6 +602,75 @@ class ControladorIntegralTest {
         assertTrue(termino.await(ESPERA_MAXIMA_S, TimeUnit.SECONDS));
         enEDT(() -> { });
         enEDT(() -> assertNull(controlador.trabajoEnCurso()));
+    }
+
+    // ==================================================================
+    // Modo --mock en la interfaz (casos 74-78 y 51 de docs/casos_prueba.md)
+    // ==================================================================
+
+    @Test
+    @DisplayName("Modo --mock (casos 74, 76 y 77): resultados simulados en la interfaz")
+    void modoMockEnLaInterfaz() throws Exception {
+        crear(new ServicioMock(0));
+
+        escribir("3*x^2", "0", "2");
+        esperar(resolver());
+        enEDT(() -> {
+            assertEquals("x^3 + C", SondaInterfaz.primitiva(resultado()));
+            assertEquals("8", SondaInterfaz.integralDefinida(resultado()));
+            assertEquals("8", SondaInterfaz.areaGeometrica(resultado()));
+        });
+
+        escribir("x*sin(x)", "0", "2");
+        esperar(resolver());
+        enEDT(() -> assertEquals("Integral no soportada", SondaInterfaz.tituloError(resultado())));
+
+        escribir("x^(-1)", "-1", "1");
+        esperar(resolver());
+        enEDT(() -> assertEquals("Fuera del dominio", SondaInterfaz.tituloError(resultado())));
+    }
+
+    @Test
+    @DisplayName("Modo --mock (casos 75 y 51): respuesta lenta con la interfaz desactivada mientras calcula")
+    void modoMockLento() throws Exception {
+        crear(new ServicioMock(300));
+        escribir("x^5", "0", "1");
+
+        CountDownLatch fin = resolver();
+        enEDT(() -> {
+            assertTrue(ventana.isCalculando());
+            assertEquals(SondaInterfaz.calculando(), SondaInterfaz.primitiva(resultado()));
+            assertFalse(SondaInterfaz.botonResolver(entrada()).isEnabled());
+            assertFalse(SondaInterfaz.botonLimpiar(entrada()).isEnabled());
+            assertFalse(SondaInterfaz.campoHabilitado(entrada(), Campo.EXPRESION));
+        });
+
+        esperar(fin);
+        enEDT(() -> {
+            assertEquals("x^6/6 + C", SondaInterfaz.primitiva(resultado()));
+            assertEquals(FormateadorResultado.NO_DISPONIBLE, SondaInterfaz.areaGeometrica(resultado()));
+            assertTrue(SondaInterfaz.botonResolver(entrada()).isEnabled());
+            assertTrue(SondaInterfaz.campoHabilitado(entrada(), Campo.EXPRESION));
+        });
+    }
+
+    @Test
+    @DisplayName("Modo --mock (caso 78): con b inválido el mock no se consulta")
+    void modoMockEntradaInvalida() throws Exception {
+        AtomicInteger llamadas = new AtomicInteger();
+        ServicioMock mock = new ServicioMock(0);
+        crear(s -> {
+            llamadas.incrementAndGet();
+            return mock.resolver(s);
+        });
+        escribir("x", "0", "abc");
+
+        enEDT(() -> {
+            controlador.resolver();
+            assertTrue(SondaInterfaz.campoConError(entrada(), Campo.LIMITE_B));
+            assertNull(controlador.trabajoEnCurso());
+        });
+        assertEquals(0, llamadas.get());
     }
 
     @Test

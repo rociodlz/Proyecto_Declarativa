@@ -27,6 +27,24 @@ class MainTest {
     }
 
     @Test
+    void avisaSiLaRutaConfiguradaDeSwiplNoExiste() throws IOException {
+        for (String archivo : ConfiguracionProlog.ARCHIVOS_PROLOG) {
+            Files.createFile(tmp.resolve(archivo));
+        }
+        Path inexistente = tmp.resolve("no_existe").resolve("swipl.exe");
+        String aviso = Main.avisoInicial(new ConfiguracionProlog(inexistente, tmp, 5000));
+        assertTrue(aviso.contains("no existe") && aviso.contains("swipl.ruta"), aviso);
+    }
+
+    @Test
+    void unNombreSinCarpetaSeBuscaEnElPathYNoSeAvisa() throws IOException {
+        for (String archivo : ConfiguracionProlog.ARCHIVOS_PROLOG) {
+            Files.createFile(tmp.resolve(archivo));
+        }
+        assertNull(Main.avisoInicial(new ConfiguracionProlog(Path.of("swipl"), tmp, 5000)));
+    }
+
+    @Test
     void avisaDelPrimerArchivoQueFalta() throws IOException {
         Path swipl = Files.createFile(tmp.resolve("swipl"));
         Files.createFile(tmp.resolve("puente.pl"));

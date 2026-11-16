@@ -83,10 +83,13 @@ public final class FormateadorResultado {
                             + "la función (Ayuda > Sintaxis).", detalleLimpio);
             case "NO_SOPORTADA" -> new MensajeError("Integral no soportada",
                     "La base de conocimiento no tiene una regla para integrar esta expresión. "
-                            + "Consulte los tipos de integrales admitidos en Ayuda > Sintaxis.", detalleLimpio);
+                            + "En Ayuda > Sintaxis (F1), la sección «Qué se puede integrar» indica "
+                            + "las formas admitidas.", detalleLimpio);
             case "DOMINIO" -> new MensajeError("Fuera del dominio",
-                    "La función no está definida en todo el intervalo [a, b] o tiene una "
-                            + "singularidad dentro de él. Pruebe con otros límites.", detalleLimpio);
+                    "La primitiva no se puede evaluar en todo el intervalo [a, b]: la función no "
+                            + "está definida en algún punto, tiene una singularidad o el valor es "
+                            + "demasiado grande. El detalle técnico indica la causa; pruebe con otros "
+                            + "límites.", detalleLimpio);
             case "PROLOG_NO_DISPONIBLE" -> new MensajeError("SWI-Prolog no disponible",
                     "No se encontró SWI-Prolog. Verifique que esté instalado y que la ruta "
                             + "configurada sea correcta.", detalleLimpio);
