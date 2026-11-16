@@ -4,12 +4,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Properties;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 
 class ConfiguracionPrologTest {
@@ -56,10 +58,15 @@ class ConfiguracionPrologTest {
     void encuentraSwiplEnElPath() throws IOException {
         Path vacia = Files.createDirectory(tmp.resolve("vacia"));
         Path bin = Files.createDirectory(tmp.resolve("bin"));
-        Path swipl = Files.createFile(bin.resolve("swipl"));
-        assertTrue(swipl.toFile().setExecutable(true));
-        String path = vacia + ":" + bin;
-        assertEquals(swipl, ConfiguracionProlog.buscarSwipl(path, false).orElseThrow());
+        // Se usa el sistema operativo real: en Windows las rutas llevan "C:", así que
+        // el separador debe ser File.pathSeparator (";") y el ejecutable swipl.exe.
+        boolean windows = OS.WINDOWS.isCurrentOs();
+        Path swipl = Files.createFile(bin.resolve(windows ? "swipl.exe" : "swipl"));
+        if (!windows) {
+            assertTrue(swipl.toFile().setExecutable(true));
+        }
+        String path = vacia + File.pathSeparator + bin;
+        assertEquals(swipl, ConfiguracionProlog.buscarSwipl(path, windows).orElseThrow());
     }
 
     @Test
