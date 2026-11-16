@@ -1,6 +1,6 @@
 # Casos de prueba
 
-> **Estado:** casos propuestos. La columna **Resultado obtenido** se llena al probar el sistema completo.
+> **Estado:** casos de prueba definidos; ejecución manual parcial registrada el 16/11/2026 (sección 5.4). La columna **Resultado obtenido** se llena al probar el sistema completo.
 
 Los valores esperados se calcularon de forma analítica y se comprobaron con integración numérica, redondeados a 6 decimales. Los límites con π se ingresan como decimales: π ≈ `3.141593`, π/2 ≈ `1.570796`, 2π ≈ `6.283185`.
 
@@ -15,7 +15,7 @@ Los valores esperados se calcularon de forma analítica y se comprobaron con int
 | 2 | b) x | `x` | 0 | 2 | `x^2/2` | 2.000000 | 2.000000 | |
 | 3 | c) k·x | `3*x` | 1 | 3 | `3*(x^2/2)` | 12.000000 | 12.000000 | |
 | 4 | d) xⁿ | `x^3` | -1 | 2 | `x^4/4` | 3.750000 | 4.250000 | |
-| 5 | d) k·xⁿ | `3*x^2` | 0 | 2 | `x^3` | 8.000000 | 8.000000 | |
+| 5 | d) k·xⁿ | `3*x^2` | 0 | 2 | `x^3` | 8.000000 | 8.000000 | `3*(x^3/3)+C` (matemáticamente equivalente a `x^3 + C`), 8, 8. Aprobado (manual, 16/11/2026) |
 | 6 | d) x⁻¹ | `x^(-1)` | 1 | 2 | `ln(abs(x))` | 0.693147 | 0.693147 | |
 | 7 | d) x⁻² | `x^(-2)` | 1 | 2 | `-1/x` | 0.500000 | 0.500000 | |
 | 8 | g) u + v | `x^2+x` | 0 | 1 | `x^3/3+x^2/2` | 0.833333 | 0.833333 | |
@@ -42,7 +42,7 @@ La primitiva esperada es matemáticamente equivalente a la indicada; su forma ex
 | # | f(x) | a | b | Integral definida | Área geométrica | Comportamiento esperado | Resultado obtenido |
 |---|---|---|---|---|---|---|---|
 | 24 | `x` | 1 | 1 | 0.000000 | 0.000000 | a = b es válido | |
-| 25 | `x` | 2 | 0 | -2.000000 | 2.000000 | a > b es válido; se muestra nota de valor negativo | |
+| 25 | `x` | 2 | 0 | -2.000000 | 2.000000 | a > b es válido; se muestra la nota de límites invertidos | `x^2/2+C`, -2, 2, nota de límites invertidos. Aprobado (manual, 16/11/2026) |
 
 ## 2.1 Área geométrica
 
@@ -53,21 +53,21 @@ La integral definida y el área geométrica pueden ser distintas (casos 4, 9, 12
 | 79 | `x^(-1)` | -2 | -1 | -0.693147 | 0.693147 | Intervalo negativo sin el 0: es válido | |
 | 80 | `asin(x)` | -1 | 1 | 0.000000 | 1.141593 | Los extremos ±1 están en el dominio | |
 | 81 | `acos(x)` | -1 | 1 | 3.141593 | 3.141593 | Los extremos ±1 están en el dominio | |
-| 82 | `x^3-x` | -2 | 2 | 0.000000 | 5.000000 | Tres raíces de un polinomio | |
+| 82 | `x^3-x` | -2 | 2 | 0.000000 | 5.000000 | Tres raíces de un polinomio | `x^4/4-x^2/2+C`, 0, 5. Aprobado (manual, 16/11/2026) |
 | 83 | `x^3` | 2 | -1 | -3.750000 | 4.250000 | Límites invertidos: el área sigue siendo ≥ 0 | |
-| 84 | `sin(x)` | 0 | 7000 | 0.137987 | 4456.137987 | 2228 cambios de signo | |
+| 84 | `sin(x)` | 0 | 7000 | 0.137987 | 4456.137987 | 2228 cambios de signo | `-cos(x)+C`, 0.137987, 4456.137987. Aprobado (manual, 16/11/2026) |
 | 85 | `cos(x)` | 0 | 7000 | 0.506885 | 4456.506885 | 2228 cambios de signo | |
 | 86 | `sin(x)+0.5` | 0 | 10 | 6.839072 | 8.211063 | Ceros por muestreo verificado | |
 | 87 | `sin(x)+0.5` | 0 | 1000 | 500.437621 | 718.220956 | Ceros por muestreo verificado | |
 | 88 | `x^20-1` | -2 | 2 | 199724.761905 | 199728.571429 | Polinomio de grado alto | |
 | 89 | `sin(x)+0.5` | 0 | 100000 | 50001.999361 | No disponible | Demasiado largo para muestrear con confianza | |
-| 90 | `sin(x)` | 0 | 1000000 | 0.063248 | No disponible | Más de 200000 cambios de signo | |
+| 90 | `sin(x)` | 0 | 1000000 | 0.063248 | No disponible | Más de 200000 cambios de signo | `-cos(x)+C`, 0.063248, área «No disponible» con nota explicativa. Aprobado (manual, 16/11/2026) |
 
 ## 3. Dominio y singularidades (se espera `DOMINIO`)
 
 | # | f(x) | a | b | Motivo | Resultado obtenido |
 |---|---|---|---|---|---|
-| 26 | `x^(-1)` | -1 | 1 | Singularidad en x = 0 | |
+| 26 | `x^(-1)` | -1 | 1 | Singularidad en x = 0 | «Fuera del dominio», sin valores numéricos. Se ingresó como `x^-1` en lugar de `x^(-1)`. Aprobado (manual, 16/11/2026) |
 | 27 | `x^(-2)` | -1 | 1 | Singularidad en x = 0 | |
 | 28 | `tan(x)` | 0 | 2 | Singularidad en x = π/2 | |
 | 29 | `asin(x)` | 0 | 2 | Fuera del dominio [−1, 1] | |
@@ -101,7 +101,7 @@ Reglas E1–E14 y L1–L5 de `docs/contrato.md`, sección 12. Estos casos tambi�
 |---|---|---|---|---|---|
 | 37 | `u(x)` | f(x) | E6 | Función genérica: escriba la función concreta | |
 | 38 | _(vacío)_ | f(x) | E1 | La expresión está vacía | |
-| 39 | `3*x^` | f(x) | E13 | Expresión incompleta | |
+| 39 | `3*x^` | f(x) | E13 | Expresión incompleta | Error de expresión incompleta; campo f(x) en rojo; resultados vacíos (a = 0, b = 2). Aprobado (manual, 16/11/2026) |
 | 40 | `(x+1` | f(x) | E9 | Paréntesis no balanceados | |
 | 41 | `sin()` | f(x) | E10 | Paréntesis vacíos | |
 | 42 | `x**2` | f(x) | E11 | Operadores consecutivos | |
@@ -183,6 +183,34 @@ Las pruebas del controlador se repitieron 30 veces seguidas sin fallos, para des
 | 76 | f(x) = `x*sin(x)` | Error "Integral no soportada" | |
 | 77 | f(x) = `x^(-1)`, a = -1, b = 1 | Error "Fuera del dominio" | |
 | 78 | b = `abc` | Error en el campo b; el mock no se consulta | |
+
+## 5.4 Pruebas manuales en la aplicación real
+
+Comprobaciones hechas a mano en la ventana Java Swing, con SWI-Prolog real:
+
+- **Entorno:** JDK 17, SWI-Prolog 10.1.13, rama `main`, commit `ba731c5`.
+- **Fecha:** 16/11/2026.
+- **Modo:** real, sin `--mock`.
+
+Solo se marcaron en las secciones anteriores los casos que coinciden exactamente con una comprobación (5, 25, 26, 39, 82, 84 y 90). Las comprobaciones parecidas a otro caso se registran solo aquí y ese caso sigue pendiente.
+
+| # | Entrada o acción | Resultado observado | Caso relacionado | Estado |
+|---|---|---|---|---|
+| M1 | `3*x^2`, a = 0, b = 2 | `3*(x^3/3)+C`, integral 8, área 8 | Caso 5 | Aprobado |
+| M2 | `x^3-x`, a = -2, b = 2 | `x^4/4-x^2/2+C`, integral 0, área 5 | Caso 82 | Aprobado |
+| M3 | `x^-1`, a = -1, b = 1 | «Fuera del dominio», sin valores numéricos | Caso 26 (ingresado como `x^-1`) | Aprobado |
+| M4 | `x*sin(x)`, a = 0, b = 2 | «Integral no soportada» | Sin caso en modo real (el 76 es con `--mock`) | Aprobado |
+| M5 | `3*x^`, a = 0, b = 2 | Error de expresión incompleta; campo f(x) en rojo; resultados vacíos | Caso 39 | Aprobado |
+| M6 | `x`, a = 2, b = 0 | `x^2/2+C`, integral -2, área 2, nota de límites invertidos | Caso 25 | Aprobado |
+| M7 | `x^2`, a = 2, b = 2 | `x^3/3+C`, integral 0, área 0, nota de límites iguales | Parecido al caso 24 (otra función y otros límites) | Aprobado |
+| M8 | Botón Limpiar | Campos y resultados vacíos; estado «Listo» | Parecido al caso 64 (vista previa); no lo reemplaza | Aprobado |
+| M9 | `sin(x)`, a = 0, b = 0, resuelto con Enter | `-cos(x)+C`, integral 0, área 0 | Parecido al caso 24 | Aprobado |
+| M10 | Alt+L | Se limpian los campos, los resultados y las notas | Parecido al caso 64 (vista previa); no lo reemplaza | Aprobado |
+| M11 | `cos(x)`, a = 0, b = 0, resuelto con Alt+R | `sin(x)+C`, integral 0, área 0 | Parecido al caso 24 | Aprobado |
+| M12 | F1 | Se abre la ventana «Sintaxis» | Caso 73, solo en parte: «Acerca de» no se probó | Aprobado (solo F1) |
+| M13 | `x^2`, a = `abc`, b = 2 | Campo a en rojo, mensaje de límite no numérico, resultados vacíos | Parecido al caso 46 (que usa el campo b) | Aprobado |
+| M14 | `sin(x)`, a = 0, b = 7000 | `-cos(x)+C`, integral 0.137987, área 4456.137987 | Caso 84 | Aprobado |
+| M15 | `sin(x)`, a = 0, b = 1000000 | `-cos(x)+C`, integral 0.063248, área «No disponible» con nota explicativa | Caso 90 | Aprobado |
 
 ## 6. Errores del entorno
 
