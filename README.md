@@ -81,9 +81,11 @@ Desde la carpeta raíz del proyecto:
 
 Los scripts buscan el `.jar` en su misma carpeta o en `target/`, y se ejecutan desde la carpeta del proyecto para encontrar `config.properties` y `base_conocimiento/`.
 
+Sin argumentos se abre la interfaz gráfica. Si no se encuentra SWI-Prolog o falta algún archivo de `base_conocimiento/`, la ventana lo indica en una franja de aviso en la parte superior.
+
 Opciones:
 
-- `--mock`: usa respuestas simuladas, sin SWI-Prolog (útil para probar la interfaz).
+- `--mock`: usa respuestas simuladas, sin SWI-Prolog (útil para probar la interfaz). La ventana muestra un aviso de modo de prueba.
 - `"<f(x)>" <a> <b>`: modo consola. Resuelve una integral sin abrir la interfaz y sirve para comprobar la instalación de Prolog. Ejemplo: `./ejecutar.sh "3*x^2" 0 2`.
 
 Si aparece el error `PROLOG_NO_DISPONIBLE`, SWI-Prolog no está instalado o no se encontró: revise el paso 2 de la instalación o configure `swipl.ruta`.
