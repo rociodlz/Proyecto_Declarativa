@@ -81,12 +81,21 @@ Desde la carpeta raíz del proyecto:
 
 Los scripts buscan el `.jar` en su misma carpeta o en `target/`, y se ejecutan desde la carpeta del proyecto para encontrar `config.properties` y `base_conocimiento/`.
 
+Sin argumentos se abre la interfaz gráfica. Si no se encuentra SWI-Prolog o falta algún archivo de `base_conocimiento/`, la ventana lo indica en una franja de aviso en la parte superior.
+
 Opciones:
 
-- `--mock`: usa respuestas simuladas, sin SWI-Prolog (útil para probar la interfaz).
+- `--mock`: usa respuestas simuladas, sin SWI-Prolog (útil para probar la interfaz). La ventana muestra un aviso de modo de prueba.
 - `"<f(x)>" <a> <b>`: modo consola. Resuelve una integral sin abrir la interfaz y sirve para comprobar la instalación de Prolog. Ejemplo: `./ejecutar.sh "3*x^2" 0 2`.
 
-Si aparece el error `PROLOG_NO_DISPONIBLE`, SWI-Prolog no está instalado o no se encontró: revise el paso 2 de la instalación o configure `swipl.ruta`.
+Los scripts usan el `java` de `JAVA_HOME` si está definido; si no, el del `PATH`.
+
+Si aparece el error `PROLOG_NO_DISPONIBLE`, SWI-Prolog no está instalado o no se encontró: revise el paso 2 de la instalación o configure `swipl.ruta`. Si aparece `INTERNO` con «No se encontró …» o «La base de conocimiento está incompleta», falta o está dañado un archivo de `base_conocimiento/`: deben estar `puente.pl`, `bc_evaluacion.pl`, `bc_integrales.pl`, `bc_derivadas.pl`, `bc_simplificaciones.pl` y `bc_simplificaciones_algebraicas.pl`.
+
+### Limitaciones del cálculo
+
+- La integral definida usa la regla de Barrow, `P(b) − P(a)`. Si la función no es continua en `[a, b]`, la respuesta es «Fuera del dominio».
+- El área geométrica (`∫|f(x)| dx`) es siempre ≥ 0, también si `a > b`. Si no se puede calcular de forma confiable (por ejemplo, en intervalos muy largos con más de 200000 cambios de signo), se muestra «No disponible» en lugar de un valor dudoso. Detalles en `docs/contrato.md`, secciones 9.1 y 9.2.
 
 ## Uso
 

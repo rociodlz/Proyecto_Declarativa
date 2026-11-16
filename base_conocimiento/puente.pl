@@ -11,14 +11,18 @@
     Las advertencias de SWI-Prolog van a la salida de error y Java las ignora.
 
     Carga, desde la misma carpeta que este archivo:
-        bc_integrales.pl   integral/3
+        bc_integrales.pl   integral/3 (que a su vez carga bc_derivadas.pl,
+                           bc_simplificaciones_algebraicas.pl y bc_simplificaciones.pl)
         bc_evaluacion.pl   integrar/2, evaluar_area/4 y, opcionalmente, area_geometrica/5
+    Antes de cargar comprueba que existan todos esos archivos; después, que no haya
+    habido errores de carga y que existan los predicados que usa.
 
     Códigos que genera este archivo:
         SINTAXIS      term_string/2 no puede leer la expresión.
         NO_SOPORTADA  integrar/2 falla.
         DOMINIO       evaluar_area/4 lanza un error de evaluación o de dominio.
-        INTERNO       argumentos incorrectos, archivos faltantes o cualquier otra excepción.
+        INTERNO       argumentos incorrectos, archivos o predicados faltantes, errores al
+                      cargar la base de conocimiento o cualquier otra excepción.
 */
 
 :- initialization(main, main).
@@ -26,8 +30,24 @@
 :- dynamic directorio_puente/1.
 :- prolog_load_context(directory, Dir), assertz(directorio_puente(Dir)).
 
+%   Todos los archivos que deben estar junto a puente.pl (Main.java comprueba la misma
+%   lista en ConfiguracionProlog.ARCHIVOS_PROLOG).
+archivo_requerido('bc_evaluacion.pl').
+archivo_requerido('bc_integrales.pl').
+archivo_requerido('bc_derivadas.pl').
+archivo_requerido('bc_simplificaciones_algebraicas.pl').
+archivo_requerido('bc_simplificaciones.pl').
+
+%   Archivos que carga puente.pl; los demás los carga bc_integrales.pl.
 archivo_base('bc_integrales.pl').
 archivo_base('bc_evaluacion.pl').
+
+%   Predicados sin los cuales no se puede responder.
+predicado_requerido(integral/3).
+predicado_requerido(integrar/2).
+predicado_requerido(evaluar_area/4).
+
+:- dynamic error_de_carga/1.
 
 
 main :-
@@ -98,13 +118,49 @@ leer_limite(Nombre, Texto, _) :-
 
 cargar_base :-
     directorio_puente(Dir),
-    forall(archivo_base(Archivo), cargar_archivo(Dir, Archivo)).
+    forall(archivo_requerido(Archivo), comprobar_archivo(Dir, Archivo)),
+    retractall(error_de_carga(_)),
+    setup_call_cleanup(
+        asserta((user:message_hook(Termino, error, _) :- registrar_error_de_carga(Termino)), Ref),
+        forall(archivo_base(Archivo), cargar_archivo(Dir, Archivo)),
+        erase(Ref)),
+    (   error_de_carga(Mensaje)
+    ->  throw(puente(error_de_carga(Mensaje)))
+    ;   true
+    ),
+    forall(predicado_requerido(Predicado), comprobar_predicado(Predicado)).
+
+comprobar_archivo(Dir, Archivo) :-
+    directory_file_path(Dir, Archivo, Ruta),
+    (   exists_file(Ruta)
+    ->  true
+    ;   throw(puente(falta_archivo(Archivo)))
+    ).
 
 cargar_archivo(Dir, Archivo) :-
     directory_file_path(Dir, Archivo, Ruta),
-    (   exists_file(Ruta)
-    ->  load_files(Ruta, [if(not_loaded), silent(true)])
-    ;   throw(puente(falta_archivo(Archivo)))
+    load_files(Ruta, [if(not_loaded), silent(true)]).
+
+%   Los errores al cargar (sintaxis, archivo no encontrado en un consult, ...) solo
+%   se imprimen: se registran para no seguir con una base de conocimiento incompleta.
+%   Las advertencias (por ejemplo, cláusulas no contiguas) no cuentan.
+registrar_error_de_carga(Termino) :-
+    (   catch(texto_del_mensaje(Termino, Mensaje), _, fail)
+    ->  true
+    ;   format(string(Mensaje), "~q", [Termino])
+    ),
+    assertz(error_de_carga(Mensaje)),
+    fail.                       % deja que SWI-Prolog lo imprima en la salida de error
+
+texto_del_mensaje(Termino, Mensaje) :-
+    '$messages':translate_message(Termino, Lineas, []),
+    with_output_to(string(Texto), print_message_lines(current_output, '', Lineas)),
+    normalize_space(string(Mensaje), Texto).
+
+comprobar_predicado(Nombre/Aridad) :-
+    (   current_predicate(Nombre/Aridad)
+    ->  true
+    ;   throw(puente(falta_predicado(Nombre/Aridad)))
     ).
 
 
@@ -117,13 +173,30 @@ error_evaluacion(Error, Linea) :-
     ;   linea_interno(Error, Linea)
     ).
 
-motivo_dominio(error(evaluation_error(Tipo), _), Tipo).
+motivo_dominio(error(evaluation_error(Tipo), _), Motivo) :-
+    motivo_evaluacion(Tipo, Motivo).
 motivo_dominio(error(domain_error(Tipo, Valor), _), Tipo-Valor).
 motivo_dominio(error(dominio(Motivo), _), Motivo).
 motivo_dominio(dominio(Motivo), Motivo).
 
+motivo_evaluacion(undefined, 'la primitiva no está definida en uno de los límites') :- !.
+motivo_evaluacion(zero_divisor, 'división entre cero en uno de los límites') :- !.
+motivo_evaluacion(float_overflow, 'el valor es demasiado grande para calcularse') :- !.
+motivo_evaluacion(Tipo, Tipo).
+
 linea_interno(puente(falta_archivo(Archivo)), Linea) :- !,
     format(string(Detalle), "No se encontró ~w junto a puente.pl", [Archivo]),
+    linea_error('INTERNO', Detalle, Linea).
+linea_interno(puente(falta_predicado(Predicado)), Linea) :- !,
+    format(string(Detalle),
+           "La base de conocimiento está incompleta: no existe ~w", [Predicado]),
+    linea_error('INTERNO', Detalle, Linea).
+linea_interno(puente(error_de_carga(Mensaje)), Linea) :- !,
+    format(string(Detalle), "Error al cargar la base de conocimiento: ~w", [Mensaje]),
+    linea_error('INTERNO', Detalle, Linea).
+linea_interno(error(existence_error(procedure, Predicado), _), Linea) :- !,
+    format(string(Detalle),
+           "La base de conocimiento está incompleta: no existe ~w", [Predicado]),
     linea_error('INTERNO', Detalle, Linea).
 linea_interno(puente(limite_invalido(Nombre, Texto)), Linea) :- !,
     format(string(Detalle), "El límite ~w no es un número: ~w", [Nombre, Texto]),

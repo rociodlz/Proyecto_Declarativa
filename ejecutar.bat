@@ -16,11 +16,16 @@ if not exist "%JAR%" (
     exit /b 1
 )
 
-where java >nul 2>nul
-if errorlevel 1 (
-    echo No se encontro java. Instale el JDK 17 o superior.
-    exit /b 1
+rem Se prefiere el java de JAVA_HOME: el del PATH puede ser otra version (por ejemplo, Java 8).
+set "JAVA=java"
+if defined JAVA_HOME if exist "%JAVA_HOME%\bin\java.exe" set "JAVA=%JAVA_HOME%\bin\java.exe"
+if "%JAVA%"=="java" (
+    where java >nul 2>nul
+    if errorlevel 1 (
+        echo No se encontro java. Instale el JDK 17 o superior, o defina JAVA_HOME.
+        exit /b 1
+    )
 )
 
-java -jar "%JAR%" %*
+"%JAVA%" -jar "%JAR%" %*
 exit /b %errorlevel%

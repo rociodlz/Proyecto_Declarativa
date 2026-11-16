@@ -15,9 +15,14 @@ if [ ! -f "$JAR" ]; then
     exit 1
 fi
 
-if ! command -v java >/dev/null 2>&1; then
-    echo "No se encontró java. Instale el JDK 17 o superior." >&2
+# Se prefiere el java de JAVA_HOME: el del PATH puede ser otra versión.
+if [ -n "$JAVA_HOME" ] && [ -x "$JAVA_HOME/bin/java" ]; then
+    JAVA="$JAVA_HOME/bin/java"
+elif command -v java >/dev/null 2>&1; then
+    JAVA=java
+else
+    echo "No se encontró java. Instale el JDK 17 o superior, o defina JAVA_HOME." >&2
     exit 1
 fi
 
-exec java -jar "$JAR" "$@"
+exec "$JAVA" -jar "$JAR" "$@"

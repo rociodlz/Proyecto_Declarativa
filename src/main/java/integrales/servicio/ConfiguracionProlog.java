@@ -29,6 +29,26 @@ import java.util.Properties;
 public final class ConfiguracionProlog {
 
     public static final String ARCHIVO = "config.properties";
+
+    /**
+     * Archivos que deben estar en {@code prolog.dir} para resolver con SWI-Prolog: el puente, el
+     * adaptador y los cuatro archivos de la base de conocimiento ({@code bc_integrales.pl} carga los
+     * otros tres). {@code puente.pl} comprueba la misma lista antes de cargar.
+     */
+    public static final List<String> ARCHIVOS_PROLOG = List.of(
+            "puente.pl",
+            "bc_evaluacion.pl",
+            "bc_integrales.pl",
+            "bc_derivadas.pl",
+            "bc_simplificaciones_algebraicas.pl",
+            "bc_simplificaciones.pl");
+
+    /** Primer archivo de {@link #ARCHIVOS_PROLOG} que falta en {@code prolog.dir}, si lo hay. */
+    public Optional<String> archivoFaltante() {
+        return ARCHIVOS_PROLOG.stream()
+                .filter(archivo -> !Files.isRegularFile(directorioProlog().resolve(archivo)))
+                .findFirst();
+    }
     static final String CLAVE_SWIPL = "swipl.ruta";
     static final String CLAVE_DIRECTORIO = "prolog.dir";
     static final String CLAVE_TIEMPO = "timeout.ms";

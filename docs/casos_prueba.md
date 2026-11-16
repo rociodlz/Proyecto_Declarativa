@@ -5,7 +5,7 @@
 Los valores esperados se calcularon de forma analítica y se comprobaron con integración numérica, redondeados a 6 decimales. Los límites con π se ingresan como decimales: π ≈ `3.141593`, π/2 ≈ `1.570796`, 2π ≈ `6.283185`.
 
 - **Integral definida:** `P(b) − P(a)`; puede ser negativa.
-- **Área geométrica:** `∫|f(x)| dx` en el intervalo; siempre ≥ 0. Es **opcional**: mientras no esté implementada, la interfaz no muestra un valor.
+- **Área geométrica:** `∫|f(x)| dx` en el intervalo; siempre ≥ 0, también con límites invertidos. Cuando no se puede calcular de forma confiable, la interfaz muestra «No disponible» en lugar de un valor (contrato, sección 9.2).
 
 ## 1. Tipos de integrales del PDF oficial
 
@@ -44,6 +44,25 @@ La primitiva esperada es matemáticamente equivalente a la indicada; su forma ex
 | 24 | `x` | 1 | 1 | 0.000000 | 0.000000 | a = b es válido | |
 | 25 | `x` | 2 | 0 | -2.000000 | 2.000000 | a > b es válido; se muestra nota de valor negativo | |
 
+## 2.1 Área geométrica
+
+La integral definida y el área geométrica pueden ser distintas (casos 4, 9, 12, 25, 80, 82, 83). Los casos 84–90 comprueban intervalos largos: el área no puede omitir cambios de signo de f(x) y, si no se puede calcular de forma confiable, debe quedar «No disponible».
+
+| # | f(x) | a | b | Integral definida | Área geométrica | Qué se comprueba | Resultado obtenido |
+|---|---|---|---|---|---|---|---|
+| 79 | `x^(-1)` | -2 | -1 | -0.693147 | 0.693147 | Intervalo negativo sin el 0: es válido | |
+| 80 | `asin(x)` | -1 | 1 | 0.000000 | 1.141593 | Los extremos ±1 están en el dominio | |
+| 81 | `acos(x)` | -1 | 1 | 3.141593 | 3.141593 | Los extremos ±1 están en el dominio | |
+| 82 | `x^3-x` | -2 | 2 | 0.000000 | 5.000000 | Tres raíces de un polinomio | |
+| 83 | `x^3` | 2 | -1 | -3.750000 | 4.250000 | Límites invertidos: el área sigue siendo ≥ 0 | |
+| 84 | `sin(x)` | 0 | 7000 | 0.137987 | 4456.137987 | 2228 cambios de signo | |
+| 85 | `cos(x)` | 0 | 7000 | 0.506885 | 4456.506885 | 2228 cambios de signo | |
+| 86 | `sin(x)+0.5` | 0 | 10 | 6.839072 | 8.211063 | Ceros por muestreo verificado | |
+| 87 | `sin(x)+0.5` | 0 | 1000 | 500.437621 | 718.220956 | Ceros por muestreo verificado | |
+| 88 | `x^20-1` | -2 | 2 | 199724.761905 | 199728.571429 | Polinomio de grado alto | |
+| 89 | `sin(x)+0.5` | 0 | 100000 | 50001.999361 | No disponible | Demasiado largo para muestrear con confianza | |
+| 90 | `sin(x)` | 0 | 1000000 | 0.063248 | No disponible | Más de 200000 cambios de signo | |
+
 ## 3. Dominio y singularidades (se espera `DOMINIO`)
 
 | # | f(x) | a | b | Motivo | Resultado obtenido |
@@ -54,6 +73,11 @@ La primitiva esperada es matemáticamente equivalente a la indicada; su forma ex
 | 29 | `asin(x)` | 0 | 2 | Fuera del dominio [−1, 1] | |
 | 30 | `acosh(x)` | 0 | 2 | Fuera del dominio x ≥ 1 | |
 | 31 | `atanh(x)` | 0 | 1 | atanh(1) no está definida | |
+| 91 | `tan(x)` | 0 | 12566.370614 | 8000 singularidades en x = π/2 + kπ (el muestreo no las ve) | |
+| 92 | `tan(x)` | 1.570796 | 2 | Singularidad en π/2 ≈ 1.5707963, justo después del límite inferior | |
+| 93 | `x^(-1)` | 0 | 1 | Singularidad en el límite inferior | |
+| 94 | `x^(-2)` | 0 | 1 | Singularidad en el límite inferior | |
+| 95 | `atanh(x)` | -1 | 0 | atanh(−1) no está definida | |
 
 ## 4. Integrales no soportadas actualmente (se espera `NO_SOPORTADA`)
 
@@ -167,3 +191,8 @@ Las pruebas del controlador se repitieron 30 veces seguidas sin fallos, para des
 | 49 | `swipl` no encontrado | `PROLOG_NO_DISPONIBLE` | |
 | 50 | La consulta a Prolog tarda más de 5 s | `TIEMPO_AGOTADO` | |
 | 51 | Mock lento (3 s): el botón Resolver se desactiva mientras calcula | — | |
+| 96 | Falta un archivo de `base_conocimiento/` (por ejemplo `bc_derivadas.pl`) | `INTERNO` («No se encontró …»); la ventana lo avisa al abrir | |
+| 97 | Un archivo de la base está vacío o le falta un predicado | `INTERNO` («La base de conocimiento está incompleta …»), no `NO_SOPORTADA` | |
+| 98 | Error de sintaxis en un archivo de la base | `INTERNO` («Error al cargar la base de conocimiento …») | |
+
+Los casos 79–98 también están automatizados en `IntegracionPrologTest`, que se omite si no hay SWI-Prolog o falta algún archivo de la base.

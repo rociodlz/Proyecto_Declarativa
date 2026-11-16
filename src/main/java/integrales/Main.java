@@ -1,14 +1,18 @@
 package integrales;
 
+import integrales.controlador.ControladorIntegral;
 import integrales.modelo.ResultadoIntegral;
 import integrales.modelo.SolicitudIntegral;
 import integrales.servicio.ConfiguracionProlog;
 import integrales.servicio.ServicioIntegrales;
 import integrales.servicio.ServicioMock;
 import integrales.servicio.ServicioProlog;
+import integrales.ui.VentanaPrincipal;
 
+import java.awt.GraphicsEnvironment;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.SwingUtilities;
 
 /**
  * Punto de entrada.
@@ -40,12 +44,11 @@ public final class Main {
             }
         }
 
-        ServicioIntegrales servicio = mock
-                ? new ServicioMock()
-                : new ServicioProlog(ConfiguracionProlog.cargar());
+        ConfiguracionProlog configuracion = mock ? null : ConfiguracionProlog.cargar();
+        ServicioIntegrales servicio = mock ? new ServicioMock() : new ServicioProlog(configuracion);
 
         if (posicionales.isEmpty()) {
-            iniciarInterfaz(servicio);
+            iniciarInterfaz(servicio, avisoInicial(configuracion));
         } else if (posicionales.size() == 3) {
             System.exit(resolverEnConsola(servicio, posicionales));
         } else {
@@ -54,11 +57,41 @@ public final class Main {
         }
     }
 
-    private static void iniciarInterfaz(ServicioIntegrales servicio) {
-        // TODO: conectar la interfaz cuando exista ControladorIntegral (contrato, sección 14.2).
-        System.err.println("La interfaz gráfica todavía no está integrada. Use el modo consola:");
-        imprimirUso();
-        System.exit(2);
+    /** Abre la ventana (contrato, sección 14.2). */
+    private static void iniciarInterfaz(ServicioIntegrales servicio, String aviso) {
+        if (GraphicsEnvironment.isHeadless()) {
+            System.err.println("No hay entorno gráfico disponible. Use el modo consola:");
+            imprimirUso();
+            System.exit(2);
+        }
+        SwingUtilities.invokeLater(() -> {
+            VentanaPrincipal.instalarAspecto();
+            VentanaPrincipal ventana = new VentanaPrincipal();
+            new ControladorIntegral(ventana, servicio);
+            ventana.mostrarAviso(aviso);
+            ventana.setVisible(true);
+        });
+    }
+
+    /**
+     * Aviso que se muestra en la franja superior de la ventana, o {@code null} si no hace falta.
+     * Avisa del modo simulado y de los problemas de instalación que se pueden detectar antes de
+     * resolver, para que el usuario no los descubra recién al pulsar Resolver.
+     *
+     * @param configuracion {@code null} en modo {@code --mock}
+     */
+    static String avisoInicial(ConfiguracionProlog configuracion) {
+        if (configuracion == null) {
+            return "Modo de prueba (--mock): las respuestas son simuladas y no se consulta SWI-Prolog.";
+        }
+        if (configuracion.swipl().isEmpty()) {
+            return "No se encontró SWI-Prolog (swipl). Instálelo o indique su ruta en "
+                    + ConfiguracionProlog.ARCHIVO + " (swipl.ruta).";
+        }
+        return configuracion.archivoFaltante()
+                .map(archivo -> "Falta " + archivo + " en " + configuracion.directorioProlog()
+                        + ". Revise prolog.dir en " + ConfiguracionProlog.ARCHIVO + ".")
+                .orElse(null);
     }
 
     private static int resolverEnConsola(ServicioIntegrales servicio, List<String> args) {

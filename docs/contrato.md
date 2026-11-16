@@ -1,7 +1,7 @@
 # Contrato de integración Java ↔ SWI-Prolog
 
 > **Estado: v1 APROBADA** el 15/11/2026 por Henry, Erick y Rocío.
-> **v1.1 PROPUESTA — pendiente de aprobación:** secciones 4.1, 12, 13, 14 y 15, marcadas con 🟡.
+> **v1.1 PROPUESTA — pendiente de aprobación:** secciones 4.1, 12, 13, 14 y 15, y los cambios de las secciones 2, 3, 6, 7 y 9, marcados con 🟡.
 > Los cambios posteriores se acuerdan entre los tres y se registran en la sección 11.
 
 Convención de estados usada en todo el documento:
@@ -34,19 +34,23 @@ Todos los archivos Prolog están en `base_conocimiento/`, en la raíz del reposi
 | `bc_derivadas.pl` | Henry | Existe (rama `base_conocimiento`) |
 | `bc_simplificaciones.pl` | Henry | Existe (rama `base_conocimiento`) |
 | `bc_simplificaciones_algebraicas.pl` | Henry | Existe (rama `base_conocimiento`) |
-| `bc_evaluacion.pl` | Por acordar | Pendiente |
-| `puente.pl` | Erick | Pendiente |
+| `bc_evaluacion.pl` | Por acordar (🟡 propuesta de Erick en el PR #7, pendiente de que Henry la acepte o la reemplace) | Pendiente |
+| `puente.pl` | Erick | Existe |
 
 Los predicados originales de Henry **no se renombran ni se modifican** como parte de este contrato.
+
+🟡 Los seis archivos son obligatorios. `puente.pl` comprueba que existan antes de cargar, que la carga no tenga errores y que existan `integral/3`, `integrar/2` y `evaluar_area/4`; si no, responde `INTERNO` (nunca `NO_SOPORTADA`). `Main` comprueba la misma lista (`ConfiguracionProlog.ARCHIVOS_PROLOG`) al abrir la ventana y muestra un aviso si falta alguno.
 
 ## 3. Predicados Prolog
 
 | Predicado | Archivo | Estado | Descripción |
 |---|---|---|---|
 | `integral(+F, +X, -R)` | `bc_integrales.pl` | **Existe** | Integral de `F` respecto a `X`, simplificada. Falla si no hay regla aplicable. Para funciones simbólicas `u(x)`, `v(x)` devuelve un término que contiene `pendiente(_, _)`. |
-| `integrar(+F, -P)` | `bc_evaluacion.pl` | **Pendiente** | Adaptador: llama a `integral(F, x, P)` y falla si `P` contiene `pendiente(_, _)`. |
-| `evaluar_area(+P, +A, +B, -V)` | `bc_evaluacion.pl` | **Pendiente** | Integral definida `V = P(B) − P(A)`. Lanza un error de dominio cuando la evaluación numérica falla o cuando se detecta una singularidad conocida en `[A, B]` (ver sección 9). |
-| `area_geometrica(+F, +P, +A, +B, -Ag)` | `bc_evaluacion.pl` | **Opcional** | Área geométrica `∫|F| dx` en `[A, B]`, dividiendo el intervalo en los cambios de signo de `F`. |
+| `integrar(+F, -P)` | `bc_evaluacion.pl` | **Pendiente** (🟡 propuesta en el PR #7) | Adaptador: llama a `integral(F, x, P)` y falla si `P` contiene `pendiente(_, _)`. 🟡 Si falta un predicado de la base (`existence_error`), lanza el error en vez de fallar. |
+| `evaluar_area(+P, +A, +B, -V)` | `bc_evaluacion.pl` | **Pendiente** (🟡 propuesta en el PR #7) | Integral definida `V = P(B) − P(A)`. Lanza un error de dominio cuando la evaluación numérica falla o cuando detecta una singularidad en `[A, B]` (ver sección 9). 🟡 El error de dominio propio es `error(dominio(Motivo), _)`; `puente.pl` lo convierte en `DOMINIO`. |
+| `area_geometrica(+F, +P, +A, +B, -Ag)` | `bc_evaluacion.pl` | **Opcional** (🟡 propuesta en el PR #7) | Área geométrica `∫|F| dx` en `[min(A,B), max(A,B)]`, siempre ≥ 0, dividiendo el intervalo en los cambios de signo de `F`. 🟡 Falla si no puede obtenerlos de forma confiable (sección 9.2). |
+
+Los estados de estas tres filas pasarán a **Existe** cuando Henry confirme la implementación de `bc_evaluacion.pl`.
 
 ### Notación de la base de conocimiento (según `base_conocimiento/README.txt`)
 
@@ -119,6 +123,7 @@ ERROR|<CODIGO>|<detalle>
 ```
 
 - `<area_geometrica>` es `-` cuando no se calculó (por ejemplo, mientras `area_geometrica/5` no exista). **Nunca se reemplaza por un valor aproximado o inventado.**
+- 🟡 `<area_geometrica>` es siempre ≥ 0, también cuando `a > b`; también es `-` cuando no se puede calcular de forma confiable (sección 9.2).
 - Java toma la primera línea que empieza con `OK|` o `ERROR|`.
 - Las advertencias de SWI-Prolog van a la salida de error y se ignoran.
 
@@ -131,7 +136,7 @@ ERROR|<CODIGO>|<detalle>
 | `DOMINIO` | Prolog | La evaluación numérica falla o se detecta una singularidad conocida en `[a, b]`. |
 | `PROLOG_NO_DISPONIBLE` | Java | No se encuentra el ejecutable `swipl`. |
 | `TIEMPO_AGOTADO` | Java | La consulta tarda más de 5 segundos. |
-| `INTERNO` | Java o Prolog | Respuesta ausente o mal formada, o excepción inesperada. |
+| `INTERNO` | Java o Prolog | Respuesta ausente o mal formada, o excepción inesperada. 🟡 También cuando falta un archivo o un predicado de la base de conocimiento, o hay un error al cargarla. |
 
 Los errores de validación de la interfaz no son códigos de este contrato: la interfaz los muestra antes de llamar al servicio.
 
@@ -173,6 +178,29 @@ Alcance propuesto para `evaluar_area/4`:
 
 **Limitación:** esta detección **no garantiza encontrar todas las singularidades** de cualquier expresión. Se limita a los tipos anteriores. Una expresión que combine funciones de forma no prevista podría producir un resultado numérico incorrecto sin error. Los casos que se prueben se documentarán en `docs/casos_prueba.md`.
 
+### 9.1 🟡 Propuesta v1.1: cómo se detectan las singularidades (`bc_evaluacion.pl`, PR #7)
+
+En la primitiva `P` se buscan las subexpresiones que dejan de estar definidas donde otra expresión `G` se anula: `B^n` con `n < 0` (`G = B`), `F/D` con `D` no numérico (`G = D`), `ln(H)` y `log(C, H)` (`G = H`) y `tan(H)` (`G = cos(H)`). Si `G` tiene un cero o un polo en `[a, b]`, incluidos los extremos, la respuesta es `DOMINIO`.
+
+Los ceros de `G` se calculan **de forma analítica**, sin muestreo, cuando `G` es:
+
+- un polinomio en `x` (raíces reales exactas): cubre `x^(-1)`, `x^(-2)` y `ln(1-x^2)` de `atanh`, con los puntos ±1;
+- `sin`, `cos` o `tan` de un argumento lineal: todos los `kπ` y `π/2 + kπ` del intervalo, sin importar su longitud (`tan(x)` de 0 a 4000π da `DOMINIO`);
+- productos, cocientes, potencias y funciones con un único cero de las anteriores.
+
+Las restricciones de dominio de `asin`, `acos`, `acosh`, `atanh`, `ln` y las raíces pares se detectan al evaluar `P` en los extremos, porque sus argumentos en la base de conocimiento son monótonos (`x`, `1-x^2` en `[0, 1]`, …).
+
+Si `G` no es reconocible, se muestrea con una separación de 0.05 como máximo (hasta 40000 puntos). Si el intervalo es demasiado largo para eso, se responde `DOMINIO` con el motivo «no se puede verificar…»: no se adivina. Con las reglas actuales de `integral/3` este caso no ocurre.
+
+### 9.2 🟡 Propuesta v1.1: área geométrica y sus limitaciones
+
+`area_geometrica/5` divide `[min(a,b), max(a,b)]` en los puntos donde `f` puede cambiar de signo y suma `|P(xᵢ₊₁) − P(xᵢ)|`. El resultado es siempre ≥ 0.
+
+- Los puntos se calculan de forma analítica con las mismas reglas de 9.1, aplicadas a `f`. Son exactos salvo por el redondeo de punto flotante (por ejemplo, `sin(x)` de 0 a 7000 da 4456.137987).
+- Si `f` no es reconocible (por ejemplo `sin(x) + 0.5`), se muestrea con una separación de 0.05 como máximo, dos veces y con cantidades de puntos no proporcionales. El resultado solo se acepta si las dos cuentas de cambios de signo coinciden y no son demasiadas.
+- **No se informa el área (`-`)** cuando hay más de 200000 cambios de signo, cuando el intervalo es demasiado largo para muestrearlo (más de 2000 unidades) o cuando las dos cuentas no coinciden.
+- **Limitación:** el muestreo puede no ver dos cambios de signo muy próximos entre sí (a menos de 0.05). Con las funciones que admite hoy `integral/3` (argumento exactamente `x`), esto solo afecta a sumas de funciones con raíces dobles o casi dobles.
+
 ## 10. Responsabilidades
 
 | Integrante | Responsabilidad |
@@ -191,6 +219,7 @@ Las pruebas que necesitan `swipl` deben **omitirse** (no fallar) cuando `swipl` 
 |---|---|---|---|
 | v1 | 15/11/2026 | Primera versión basada en el código real de `base_conocimiento` (`1de3224`). | Henry, Erick y Rocío |
 | v1.1 🟡 | 15/11/2026 | Normalización adicional (4.1), validación de la entrada (12), responsable de normalizar (13), integración de la interfaz con `Main` (14) y controlador (15). | Pendiente |
+| v1.1 🟡 | 16/11/2026 | Archivos obligatorios y error `INTERNO` por base incompleta (2, 7); estados de `bc_evaluacion.pl` y `error(dominio(Motivo), _)` (3); área siempre ≥ 0 o `-` si no es confiable (6, 9.2); detección analítica de singularidades (9.1). | Pendiente |
 
 ## 12. 🟡 Propuesta v1.1: validación de la entrada (implementada por Rocío)
 
