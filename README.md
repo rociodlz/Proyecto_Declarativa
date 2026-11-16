@@ -99,7 +99,99 @@ Si aparece el error `PROLOG_NO_DISPONIBLE`, SWI-Prolog no está instalado o no s
 
 ## Uso
 
-_Pendiente._
+### 1. Abrir la aplicación
+
+Ejecute `ejecutar.bat` (Windows) o `./ejecutar.sh` (Linux / macOS) sin argumentos, como se indica en [Ejecución](#ejecución). Se abre la ventana **Sistema de Integrales**, con dos tarjetas: **Datos de la integral** y **Resultado**.
+
+Si aparece una franja de aviso en la parte superior, lea su mensaje antes de continuar: indica que no se encontró SWI-Prolog, que falta un archivo de `base_conocimiento/` o que la aplicación está en modo de prueba (`--mock`).
+
+### 2. Escribir la función f(x)
+
+Escriba la función en el campo **f(x) =** usando la variable `x`:
+
+- Operadores: `+`, `-`, `*`, `/` y `^` (potencia). Ejemplos: `3*x^2`, `x^-1`, `2^x`, `sin(x)+cos(x)`.
+- Funciones: `sin` (o `sen`), `cos`, `tan`, `asin`, `acos`, `atan`, `sinh`, `cosh`, `tanh`, `asinh`, `acosh`, `atanh`. También se aceptan `arcsin`, `arccos`, `arctan`, `arcsinh`, `arccosh` y `arctanh`. Las funciones trigonométricas usan radianes.
+- Se aceptan mayúsculas y la multiplicación implícita: `3x` se interpreta como `3*x`, y `Sen(X)` como `sin(x)`.
+- Los decimales se escriben con punto: `0.5`, no `0,5`.
+
+El menú **Ayuda > Sintaxis** (tecla **F1**) muestra este resumen dentro de la aplicación.
+
+### 3. Ingresar los límites a y b
+
+Escriba el límite inferior en **a =** y el superior en **b =**. Deben ser números entre −1000000 y 1000000, con punto decimal (por ejemplo `-2.5` o `3.14159`); no se aceptan expresiones como `pi`. Se permite `a = b` (la integral vale 0) y `a > b` (la integral definida cambia de signo).
+
+### 4. Resolver
+
+Pulse **Resolver**, la tecla **Enter** o **Alt+R**.
+
+Primero se valida lo escrito. Si hay un error, el campo afectado se marca en rojo, debajo aparece un mensaje que lo explica y no se consulta a SWI-Prolog.
+
+Si los datos son válidos, la tarjeta Resultado muestra «Calculando…» y en la barra de estado inferior aparece una barra de actividad. Mientras tanto, los campos y los botones quedan desactivados, para que no se inicien dos cálculos a la vez; la ventana sigue respondiendo. Si SWI-Prolog no responde dentro del tiempo configurado en `config.properties` (`timeout.ms`, 5 segundos por defecto), se muestra «Tiempo agotado»; como protección adicional, la interfaz cancela cualquier cálculo que supere los 15 segundos.
+
+### 5. Interpretar el resultado
+
+| Bloque | Qué muestra |
+|---|---|
+| **Integral indefinida** | La primitiva `F(x) + C` que devolvió la base de conocimiento. Puede aparecer sin simplificar del todo; por ejemplo, `3*(x^3/3) + C` equivale a `x^3 + C`. `\|x\|` es el valor absoluto, `ln` el logaritmo natural y `sqrt` la raíz cuadrada. |
+| **Integral definida** | `F(b) − F(a)`, con signo: es negativa cuando predomina la parte de la función que está bajo el eje x. |
+| **Área geométrica** | `∫\|f(x)\| dx` en el intervalo: el área entre la curva y el eje x, siempre ≥ 0. Es un resultado numérico que puede ser aproximado. Cuando el sistema no puede calcularla con suficiente confiabilidad (por ejemplo, en intervalos muy largos), muestra **«No disponible»**. |
+
+Los números se muestran con hasta 6 decimales, y en notación científica a partir de 10⁹ (por ejemplo `2.5e+23`). Debajo de los valores pueden aparecer notas: límites iguales, límites invertidos, integral negativa o área no disponible.
+
+### 6. Limpiar
+
+Pulse **Limpiar** (**Alt+L**) para borrar la función, los límites y el resultado, y empezar de nuevo. Mientras se calcula, Limpiar está desactivado.
+
+### Ejemplo
+
+| Campo | Valor |
+|---|---|
+| f(x) | `3*x^2` |
+| a | `0` |
+| b | `2` |
+
+Al pulsar Resolver:
+
+- **Integral indefinida:** una posible primitiva es `3*(x^3/3) + C`, equivalente a `x^3 + C`. La forma exacta en que se muestra depende de la simplificación de la base de conocimiento.
+- **Integral definida:** `8`, porque `2³ − 0³ = 8`.
+- **Área geométrica:** `8`, igual a la integral, porque `3x²` no es negativa en `[0, 2]`.
+
+Con `x^3-x` entre `-2` y `2`, en cambio, la integral definida es `0` y el área geométrica es `5`: las partes por encima y por debajo del eje x se compensan en la integral, pero se suman en el área.
+
+### Mensajes de error
+
+**Errores de entrada:** aparecen en la tarjeta *Datos de la integral*, con el campo afectado marcado en rojo. Por ejemplo, una expresión vacía o incompleta (`3*x^`), paréntesis sin cerrar, una función sin paréntesis (`sin x`), una variable distinta de `x` o un límite que no es un número. Corrija el dato y pulse Resolver otra vez.
+
+**Errores de cálculo:** aparecen en la tarjeta *Resultado*, con un título, una explicación y, cuando está disponible, un «Detalle técnico» que ayuda a diagnosticar el problema.
+
+| Título | Significado |
+|---|---|
+| Integral no soportada | La base de conocimiento no tiene una regla para esa expresión (ver [Limitaciones](#limitaciones)). |
+| Fuera del dominio | La función no está definida en todo `[a, b]` o tiene una singularidad dentro del intervalo; por ejemplo, `x^-1` entre `-1` y `1`, o `tan(x)` entre `0` y `2`. Pruebe con otros límites. |
+| Expresión no reconocida | SWI-Prolog no pudo leer la expresión. |
+| SWI-Prolog no disponible | No se encontró `swipl`. Revise la [Instalación](#instalación) o `swipl.ruta` en `config.properties`. |
+| Tiempo agotado | El cálculo tardó más de lo permitido y se canceló. |
+| Error interno | Falló algo inesperado; por ejemplo, falta o está dañado un archivo de `base_conocimiento/`. El detalle técnico indica la causa. |
+
+### Modo de prueba (`--mock`)
+
+`ejecutar.bat --mock` (o `./ejecutar.sh --mock`) abre la interfaz **sin SWI-Prolog**. Sirve solo para probar la interfaz: **los resultados son simulados y no corresponden a la función escrita**. La ventana lo indica con una franja de aviso.
+
+- `x*sin(x)` responde «Integral no soportada».
+- `x^-1` responde «Fuera del dominio» si el 0 está en el intervalo.
+- `x^5` tarda 3 segundos, para observar el estado «Calculando…».
+- Cualquier otra expresión responde como si fuera `3*x^2`.
+
+En el modo consola (`--mock "<f(x)>" a b`) el resultado se imprime sin indicar que es simulado. No use `--mock` para obtener resultados reales.
+
+### Limitaciones
+
+Además de las [limitaciones del cálculo](#limitaciones-del-cálculo):
+
+- La base de conocimiento integra constantes numéricas, `x`, `x^n` (con `n` entero, incluido `x^-1`), `a^x` con `a` numérico, y `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `sinh`, `cosh`, `tanh`, `asinh`, `acosh` y `atanh` con argumento exactamente `x`. También integra sumas y restas de estas funciones y su producto por una constante escrita a la izquierda, por ejemplo `3*x`, `3*sin(x)` o `2*x^2+3*cos(x)`.
+- No integra, y responde «Integral no soportada»: la constante escrita a la derecha (`sin(x)*3`), productos de funciones (`x*sin(x)`), funciones de un argumento distinto de `x` (`sin(2*x)`), `e^x`, `exp(x)`, `ln(x)`, `x^0.5`, `1/x`, `x/2` ni `-x`. La validación acepta `exp`, `ln`, `log` y la constante `e` en la expresión, pero la base de conocimiento no tiene reglas para integrarlas. La lista completa está en `docs/contrato.md`, sección 3.
+- `sqrt` no se acepta en la expresión.
+- La primitiva se muestra como la devuelve la base de conocimiento, que no siempre la simplifica por completo.
 
 ### Vista previa de la interfaz (desarrollo)
 
