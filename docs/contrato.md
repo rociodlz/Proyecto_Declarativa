@@ -1,7 +1,7 @@
 # Contrato de integración Java ↔ SWI-Prolog
 
 > **Estado: v1 APROBADA** el 15/11/2026 por Henry, Erick y Rocío.
-> **v1.1 PROPUESTA — pendiente de aprobación:** secciones 4.1, 12, 13 y 14, marcadas con 🟡.
+> **v1.1 PROPUESTA — pendiente de aprobación:** secciones 4.1, 12, 13, 14 y 15, marcadas con 🟡.
 > Los cambios posteriores se acuerdan entre los tres y se registran en la sección 11.
 
 Convención de estados usada en todo el documento:
@@ -190,7 +190,7 @@ Las pruebas que necesitan `swipl` deben **omitirse** (no fallar) cuando `swipl` 
 | Versión | Fecha | Cambio | Aprobado por |
 |---|---|---|---|
 | v1 | 15/11/2026 | Primera versión basada en el código real de `base_conocimiento` (`1de3224`). | Henry, Erick y Rocío |
-| v1.1 🟡 | 15/11/2026 | Normalización adicional (4.1), validación de la entrada (12), responsable de normalizar (13) e integración de la interfaz con `Main` (14). | Pendiente |
+| v1.1 🟡 | 15/11/2026 | Normalización adicional (4.1), validación de la entrada (12), responsable de normalizar (13), integración de la interfaz con `Main` (14) y controlador (15). | Pendiente |
 
 ## 12. 🟡 Propuesta v1.1: validación de la entrada (implementada por Rocío)
 
@@ -270,13 +270,66 @@ Por ejemplo, `x^(-1)` con a = −1 y b = 1 pasa la validación porque está bien
 SwingUtilities.invokeLater(() -> {
     VentanaPrincipal.instalarAspecto();
     VentanaPrincipal ventana = new VentanaPrincipal();
-    new ControladorIntegral(ventana, new ValidadorEntrada(), servicio, new FormateadorResultado());
+    new ControladorIntegral(ventana, servicio);   // integrales.controlador
     ventana.setVisible(true);
 });
 ```
 
-`ControladorIntegral` (Rocío, etapa siguiente) llamará al servicio dentro de un `SwingWorker`, nunca en el EDT.
+`ControladorIntegral` ya está implementado (sección 15): crea internamente `ValidadorEntrada` y `FormateadorResultado`, y llama al servicio dentro de un `SwingWorker`, nunca en el EDT. Con `--mock` se recomienda además `ventana.mostrarAviso(...)` para indicar que las respuestas son simuladas.
 
 ### 14.3 Herramienta de desarrollo
 
 `src/test/java/integrales/ui/VistaPreviaInterfaz.java` abre la ventana con datos simulados. No forma parte de la aplicación, no entra en el JAR y no reemplaza a `Main` (ver README).
+
+## 15. 🟡 Propuesta v1.1: controlador (implementado por Rocío)
+
+`integrales.controlador.ControladorIntegral` conecta la interfaz con `ValidadorEntrada` y con `ServicioIntegrales`. Usa directamente las clases de Erick; no hay interfaces ni adaptadores intermedios.
+
+### 15.1 API pública
+
+| Método | Descripción |
+|---|---|
+| `ControladorIntegral(VentanaPrincipal ventana, ServicioIntegrales servicio)` | Registra Resolver y Limpiar en `PanelEntrada`. Argumentos obligatorios. Debe llamarse en el EDT. |
+| `resolver()` | Equivale a pulsar Resolver (EDT). |
+| `limpiar()` | Equivale a pulsar Limpiar (EDT). |
+
+Fuera del EDT, los tres lanzan `IllegalStateException`.
+
+### 15.2 Flujo de Resolver
+
+1. Si ya hay un cálculo en curso, no hace nada.
+2. Valida f(x), a y b, en ese orden. Ante el primer error: lo muestra en su campo, borra el resultado anterior y **no llama al servicio**.
+3. Crea `SolicitudIntegral` con la expresión validada **sin normalizar** (solo sin espacios exteriores; normaliza `ServicioProlog`, sección 13) y los límites como `double`. a = b y a > b se envían sin cambios.
+4. Activa el estado de carga (`setCalculando(true)`, "Calculando…") y llama a `servicio.resolver(...)` en un `SwingWorker`.
+5. Al terminar, en el EDT: desactiva el estado de carga y muestra el resultado con `FormateadorResultado`.
+
+### 15.3 Respuestas y errores
+
+| Respuesta del servicio | Se muestra |
+|---|---|
+| `exito = true` con integral definida finita | Primitiva, integral definida y área (o "No disponible") |
+| `exito = false` | El mensaje del código de error y su detalle |
+| `null` | `INTERNO`: "El servicio no devolvió ningún resultado." |
+| `exito = true` sin integral definida, con valor no finito o primitiva vacía | `INTERNO`: respuesta no válida (no se inventan valores) |
+| El servicio lanza una excepción (no debería, según la sección 8) | `INTERNO`, con la excepción en el detalle técnico |
+| El hilo se interrumpe | `INTERNO`: "La consulta fue interrumpida." |
+| El servicio no responde en 15 s | `TIEMPO_AGOTADO` (sección 15.5) |
+
+En todos los casos la interfaz se rehabilita.
+
+### 15.4 Limpiar, cálculos simultáneos y respuestas obsoletas
+
+- Mientras se calcula, la ventana desactiva Resolver, **Limpiar** y los campos; no puede haber dos cálculos a la vez. El tiempo máximo de seguridad (15.5) garantiza que la interfaz siempre se recupera.
+- Cada cálculo recibe un **número de operación**. `limpiar()`, el tiempo agotado y el cierre de la ventana lo invalidan, detienen el temporizador y piden la cancelación del `SwingWorker`. Una respuesta, o el aviso de un temporizador, solo tiene efecto si su número sigue siendo el actual: **un resultado anterior nunca reaparece después de limpiar ni sobrescribe el mensaje de tiempo agotado**.
+
+### 15.5 Tiempo máximo de seguridad
+
+- Cada cálculo arranca un `javax.swing.Timer` de un solo disparo (se ejecuta en el EDT) de **15 s** (`ControladorIntegral.TIEMPO_MAXIMO`). Es mayor que el límite del servicio (`timeout.ms`, 5 s) más el arranque de SWI-Prolog, así que normalmente responde antes el servicio.
+- Si se cumple el tiempo y la operación sigue activa: se invalida, se pide `cancel(true)`, se rehabilita la interfaz y se muestra `TIEMPO_AGOTADO` ("El servicio no respondió en 15 s; el cálculo se canceló.").
+- El controlador **no depende** de que el servicio respete su propio límite ni de que `cancel(true)` lo detenga: si el servicio sigue bloqueado, su hilo continúa, pero su respuesta se descarta.
+- El temporizador se detiene cuando el cálculo termina, al limpiar y al cerrar la ventana. Cada temporizador conoce su operación, así que uno antiguo no puede afectar a un cálculo nuevo.
+- Para las pruebas existe un constructor de paquete `ControladorIntegral(ventana, servicio, Duration)`.
+
+### 15.6 Pendiente
+
+- `Main.iniciarInterfaz` (Erick) debe crear el controlador como en la sección 14.2.
