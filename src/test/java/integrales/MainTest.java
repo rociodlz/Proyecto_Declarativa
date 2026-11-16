@@ -36,9 +36,21 @@ class MainTest {
     }
 
     @Test
+    void avisaSiFaltaUnArchivoQueCargaBcIntegrales() throws IOException {
+        Path swipl = Files.createFile(tmp.resolve("swipl"));
+        for (String archivo : ConfiguracionProlog.ARCHIVOS_PROLOG) {
+            if (!archivo.equals("bc_derivadas.pl")) {
+                Files.createFile(tmp.resolve(archivo));
+            }
+        }
+        String aviso = Main.avisoInicial(new ConfiguracionProlog(swipl, tmp, 5000));
+        assertTrue(aviso.contains("bc_derivadas.pl"), aviso);
+    }
+
+    @Test
     void sinAvisoSiTodoEstaInstalado() throws IOException {
         Path swipl = Files.createFile(tmp.resolve("swipl"));
-        for (String archivo : Main.ARCHIVOS_PROLOG) {
+        for (String archivo : ConfiguracionProlog.ARCHIVOS_PROLOG) {
             Files.createFile(tmp.resolve(archivo));
         }
         assertNull(Main.avisoInicial(new ConfiguracionProlog(swipl, tmp, 5000)));

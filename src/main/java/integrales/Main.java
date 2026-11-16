@@ -10,8 +10,6 @@ import integrales.servicio.ServicioProlog;
 import integrales.ui.VentanaPrincipal;
 
 import java.awt.GraphicsEnvironment;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.SwingUtilities;
@@ -28,9 +26,6 @@ import javax.swing.SwingUtilities;
  * <p>El modo consola no valida la entrada; sirve para probar la integración con Prolog sin la interfaz.
  */
 public final class Main {
-
-    /** Archivos que deben estar en {@code prolog.dir} para resolver con SWI-Prolog. */
-    static final List<String> ARCHIVOS_PROLOG = List.of("puente.pl", "bc_integrales.pl", "bc_evaluacion.pl");
 
     private Main() {
     }
@@ -93,14 +88,10 @@ public final class Main {
             return "No se encontró SWI-Prolog (swipl). Instálelo o indique su ruta en "
                     + ConfiguracionProlog.ARCHIVO + " (swipl.ruta).";
         }
-        for (String archivo : ARCHIVOS_PROLOG) {
-            Path ruta = configuracion.directorioProlog().resolve(archivo);
-            if (!Files.isRegularFile(ruta)) {
-                return "Falta " + archivo + " en " + configuracion.directorioProlog()
-                        + ". Revise prolog.dir en " + ConfiguracionProlog.ARCHIVO + ".";
-            }
-        }
-        return null;
+        return configuracion.archivoFaltante()
+                .map(archivo -> "Falta " + archivo + " en " + configuracion.directorioProlog()
+                        + ". Revise prolog.dir en " + ConfiguracionProlog.ARCHIVO + ".")
+                .orElse(null);
     }
 
     private static int resolverEnConsola(ServicioIntegrales servicio, List<String> args) {
