@@ -117,10 +117,16 @@ error_evaluacion(Error, Linea) :-
     ;   linea_interno(Error, Linea)
     ).
 
-motivo_dominio(error(evaluation_error(Tipo), _), Tipo).
+motivo_dominio(error(evaluation_error(Tipo), _), Motivo) :-
+    motivo_evaluacion(Tipo, Motivo).
 motivo_dominio(error(domain_error(Tipo, Valor), _), Tipo-Valor).
 motivo_dominio(error(dominio(Motivo), _), Motivo).
 motivo_dominio(dominio(Motivo), Motivo).
+
+motivo_evaluacion(undefined, 'la primitiva no está definida en uno de los límites') :- !.
+motivo_evaluacion(zero_divisor, 'división entre cero en uno de los límites') :- !.
+motivo_evaluacion(float_overflow, 'la primitiva tiende a infinito en uno de los límites') :- !.
+motivo_evaluacion(Tipo, Tipo).
 
 linea_interno(puente(falta_archivo(Archivo)), Linea) :- !,
     format(string(Detalle), "No se encontró ~w junto a puente.pl", [Archivo]),
