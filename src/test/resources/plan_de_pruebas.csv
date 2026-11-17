@@ -1,0 +1,224 @@
+id;descripcion;f;a;b;esperado;primitiva;integral;area
+"A01";"a) constante";"5";"0";"2";OK;"5*x + C";10;10
+"A02";"a) constante negativa: integral negativa, área positiva";"-3";"1";"4";OK;"-3*x + C";-9;9
+"A03";"a) constante cero";"0";"0";"5";OK;"0 + C";0;0
+"A04";"a) constante decimal";"2.5";"-1";"1";OK;"2.5*x + C";5;5
+"A05";"b) x";"x";"0";"2";OK;"x^2/2 + C";2;2
+"A06";"b) intervalo simétrico: integral 0, área 9";"x";"-3";"3";OK;"x^2/2 + C";9.85878045867e-16;9
+"A07";"b) intervalo negativo";"x";"-2";"-1";OK;"x^2/2 + C";-1.5;1.5
+"A08";"c) k·x";"3*x";"1";"3";OK;"3*x^2/2 + C";12;12
+"A09";"c) k negativa";"-2*x";"0";"1";OK;"-x^2 + C";-1;1
+"A10";"c) k decimal, intervalo simétrico";"0.5*x";"-2";"2";OK;"0.5*x^2/2 + C";1.43524081508e-16;2
+"A11";"d) n = 2";"x^2";"0";"3";OK;"x^3/3 + C";9;9
+"A12";"d) n = 3, cambia de signo";"x^3";"-1";"2";OK;"x^4/4 + C";3.75;4.25
+"A13";"d) n = 10";"x^10";"0";"1";OK;"x^11/11 + C";0.0909090909091;0.0909090909091
+"A14";"d) n = 0";"x^0";"0";"2";OK;"x + C";2;2
+"A15";"d) n = 1";"x^1";"0";"2";OK;"x^2/2 + C";2;2
+"A16";"d) n = −1: ln|x|";"x^(-1)";"1";"2";OK;"ln(|x|) + C";0.69314718056;0.69314718056
+"A17";"d) n = −1 en intervalo negativo";"x^(-1)";"-2";"-1";OK;"ln(|x|) + C";-0.69314718056;0.69314718056
+"A18";"d) n = −2";"x^(-2)";"1";"2";OK;"-1/x + C";0.5;0.5
+"A19";"d) n = −3";"x^(-3)";"1";"2";OK;"-1/(2*x^2) + C";0.375;0.375
+"A20";"e) u concreta";"x^2+sin(x)";"0";"1";OK;"x^3/3-cos(x) + C";0.793031027465;0.793031027465
+"A21";"e) u concreta";"cos(x)-x";"0";"1";OK;"sin(x)-x^2/2 + C";0.341470984808;0.459506240061
+"A22";"e) u simbólica: la interfaz la rechaza";"u(x)";"0";"1";ENTRADA_EXPRESION;;;
+"A23";"f) k·u";"3*sin(x)";"0";"3.141593";OK;"-3*cos(x) + C";6;6
+"A24";"f) k negativa";"-2*cos(x)";"0";"1.570796";OK;"-2*sin(x) + C";-2;2
+"A25";"f) k·xⁿ";"4*x^3";"0";"1";OK;"x^4 + C";1;1
+"A26";"f) k·tan";"2*tan(x)";"0";"1";OK;"-2*ln(|cos(x)|) + C";1.23125294077;1.23125294077
+"A27";"g) u + v";"x^2+x";"0";"1";OK;"x^3/3+x^2/2 + C";0.833333333333;0.833333333333
+"A28";"g) u + v trigonométricas";"sin(x)+cos(x)";"0";"1.570796";OK;"-cos(x)+sin(x) + C";1.99999967321;1.99999967321
+"A29";"g) con constante";"x+1";"0";"1";OK;"x^2/2+x + C";1.5;1.5
+"A30";"h) u − v";"x^2-x";"0";"2";OK;"x^3/3-x^2/2 + C";0.666666666667;1
+"A31";"h) integral 0, área 2(√2−1)";"cos(x)-sin(x)";"0";"1.570796";OK;"sin(x)+cos(x) + C";3.26794842022e-07;0.828426797951
+"A32";"h) con constante";"1-x";"0";"2";OK;"x-x^2/2 + C";1.17406084854e-17;1
+"A33";"i) aˣ";"2^x";"0";"3";OK;"2^x/ln(2) + C";10.0988652862;10.0988652862
+"A34";"i) base entre 0 y 1";"0.5^x";"0";"2";OK;"0.5^x/ln(0.5) + C";1.08202128067;1.08202128067
+"A35";"i) base 10";"10^x";"0";"1";OK;"10^x/ln(10) + C";3.90865033713;3.90865033713
+"A36";"i) base 1 (caso borde: 1ˣ = 1)";"1^x";"0";"2";NO_SOPORTADA;;;
+"A37";"i) base e (limitación documentada)";"e^x";"0";"1";NO_SOPORTADA;;;
+"A38";"j) aᵘ (sin regla de la cadena)";"2^(3*x)";"0";"1";NO_SOPORTADA;;;
+"A39";"k) sin";"sin(x)";"0";"3.141593";OK;"-cos(x) + C";2;2
+"A40";"k) período completo: integral 0, área 4";"sin(x)";"0";"6.283185";OK;"-cos(x) + C";6.07856998096e-14;4
+"A41";"k) simétrico";"sin(x)";"-1.570796";"1.570796";OK;"-cos(x) + C";3.82030516943e-17;1.99999934641
+"A42";"l) cos";"cos(x)";"0";"1.570796";OK;"sin(x) + C";1;1
+"A43";"l) integral 0, área 2";"cos(x)";"0";"3.141593";OK;"sin(x) + C";-3.46410202272e-07;2.00000034641
+"A44";"m) tan";"tan(x)";"0";"1";OK;"-ln(|cos(x)|) + C";0.615626470386;0.615626470386
+"A45";"m) simétrico";"tan(x)";"-1";"1";OK;"-ln(|cos(x)|) + C";-7.25253190836e-17;1.23125294077
+"A46";"m) entre π/2 y 3π/2, sin singularidad";"tan(x)";"2";"4";OK;"-ln(|cos(x)|) + C";-0.451524110256;1.30191010642
+"A47";"n) asin";"asin(x)";"0";"1";OK;"x*asin(x)+sqrt(1-x^2) + C";0.570796323272;0.570796323272
+"A48";"n) extremos ±1";"asin(x)";"-1";"1";OK;"x*asin(x)+sqrt(1-x^2) + C";-9.21068776805e-17;1.14159263366
+"A49";"o) acos";"acos(x)";"0";"1";OK;"x*acos(x)-sqrt(1-x^2) + C";1.00000000352;1.00000000352
+"A50";"o) extremos ±1";"acos(x)";"-1";"1";OK;"x*acos(x)-sqrt(1-x^2) + C";3.14159265359;3.14159265359
+"A51";"p) atan";"atan(x)";"0";"1";OK;"x*atan(x)-ln(1+x^2)/2 + C";0.438824573117;0.438824573117
+"A52";"p) simétrico";"atan(x)";"-1";"1";OK;"x*atan(x)-ln(1+x^2)/2 + C";4.65807947769e-17;0.877649146235
+"A53";"p) intervalo largo";"atan(x)";"0";"100";OK;"x*atan(x)-ln(1+x^2)/2 + C";151.474445827;151.474445827
+"A54";"q) sh, como en el PDF";"sh(x)";"0";"1";OK;"cosh(x) + C";0.543080634815;0.543080634815
+"A55";"q) sinh simétrico";"sinh(x)";"-1";"1";OK;"cosh(x) + C";-5.56499291093e-18;1.08616126963
+"A56";"q) en mayúsculas";"SH(X)";"0";"1";OK;"cosh(x) + C";0.543080634815;0.543080634815
+"A57";"r) cosh";"cosh(x)";"0";"1";OK;"sinh(x) + C";1.17520119364;1.17520119364
+"A58";"r) simétrico";"cosh(x)";"-2";"2";OK;"sinh(x) + C";7.25372081569;7.25372081569
+"A59";"s) tanh";"tanh(x)";"0";"1";OK;"ln(cosh(x)) + C";0.433780830483;0.433780830483
+"A60";"s) simétrico";"tanh(x)";"-1";"1";OK;"ln(cosh(x)) + C";-2.95180546672e-17;0.867561660966
+"A61";"t) arcsinh, como en el PDF";"arcsinh(x)";"0";"1";OK;"x*asinh(x)-sqrt(x^2+1) + C";0.467160024646;0.467160024646
+"A62";"t) asinh simétrico";"asinh(x)";"-1";"1";OK;"x*asinh(x)-sqrt(x^2+1) + C";7.86870568703e-18;0.934320049293
+"A63";"u) arccosh, como en el PDF";"arccosh(x)";"1";"2";OK;"x*acosh(x)-sqrt(x-1)*sqrt(x+1) + C";0.901864989803;0.901864989803
+"A64";"u) a = b = 1 (borde del dominio)";"acosh(x)";"1";"1";OK;"x*acosh(x)-sqrt(x-1)*sqrt(x+1) + C";0;0
+"A65";"u) intervalo más largo";"acosh(x)";"1";"10";OK;"x*acosh(x)-sqrt(x-1)*sqrt(x+1) + C";19.9823541853;19.9823541853
+"A66";"v) arctanh, como en el PDF";"arctanh(x)";"0";"0.5";OK;"x*atanh(x)+ln(1-x^2)/2 + C";0.130812035941;0.130812035941
+"A67";"v) simétrico";"atanh(x)";"-0.5";"0.5";OK;"x*atanh(x)+ln(1-x^2)/2 + C";1.20389809233e-17;0.261624071882
+"A68";"v) muy cerca de 1";"atanh(x)";"0.9";"0.999999";OK;"x*atanh(x)+ln(1-x^2)/2 + C";0.198507468374;0.198507468374
+"B01";"multiplicación implícita número·x";"3x^2";"0";"2";OK;"x^3 + C";8;8
+"B02";"espacios por todos lados";" 3 * x ^ 2 ";"0";"2";OK;"x^3 + C";8;8
+"B03";"espacio como multiplicación";"3 x^2";"0";"2";OK;"x^3 + C";8;8
+"B04";"X mayúscula";"3*X^2";"0";"2";OK;"x^3 + C";8;8
+"B05";"sen en español y mayúsculas";"Sen(X)";"0";"3.141593";OK;"-cos(x) + C";2;2
+"B06";"función en mayúsculas";"SIN(x)";"0";"3.141593";OK;"-cos(x) + C";2;2
+"B07";"alias arcsin";"arcsin(x)";"0";"1";OK;"x*asin(x)+sqrt(1-x^2) + C";0.570796323272;0.570796323272
+"B08";"alias arccos";"arccos(x)";"0";"1";OK;"x*acos(x)-sqrt(1-x^2) + C";1.00000000352;1.00000000352
+"B09";"alias arctan";"arctan(x)";"0";"1";OK;"x*atan(x)-ln(1+x^2)/2 + C";0.438824573117;0.438824573117
+"B10";"exponente negativo sin paréntesis";"x^-1";"1";"2";OK;"ln(|x|) + C";0.69314718056;0.69314718056
+"B11";"exponente negativo sin paréntesis";"x^-2";"1";"2";OK;"-1/x + C";0.5;0.5
+"B12";"decimal sin cero inicial";".5*x";"0";"2";OK;"0.5*x^2/2 + C";1;1
+"B13";"decimal con punto final";"2.*x";"0";"1";OK;"2.0*x^2/2 + C";1;1
+"B14";"número pegado a función";"2sin(x)";"0";"3.141593";OK;"-2*cos(x) + C";4;4
+"B15";"número pegado a paréntesis";"2(x+1)";"0";"1";OK;"x^2+2*x + C";3;3
+"B16";"signo después de operador";"x+-1";"0";"1";OK;"x^2/2-x + C";-0.5;0.5
+"B17";"negación";"-x";"0";"1";NO_SOPORTADA;;;
+"B18";"producto por negativo";"2*-x";"0";"1";NO_SOPORTADA;;;
+"B19";"negación de función";"-sin(x)";"0";"3.141593";NO_SOPORTADA;;;
+"B20";"constante a la derecha";"x*3";"0";"1";NO_SOPORTADA;;;
+"B21";"división entre constante";"x/2";"0";"2";NO_SOPORTADA;;;
+"B22";"paréntesis pegados";"(x+1)(x-1)";"0";"1";NO_SOPORTADA;;;
+"B23";"x pegada a paréntesis";"x(x+1)";"0";"1";NO_SOPORTADA;;;
+"B24";"x repetida";"x+x";"0";"1";OK;"x^2 + C";1;1
+"B25";"se anula";"x-x";"0";"1";OK;"0 + C";0;0
+"B26";"producto por cero";"0*x";"0";"1";OK;"0 + C";0;0
+"B27";"polinomio de tres términos";"x^2+2*x+1";"-2";"1";OK;"x^3/3+x^2+x + C";3;3
+"B28";"suma de exponenciales";"2^x+3^x";"0";"1";OK;"2^x/ln(2)+3^x/ln(3) + C";3.26317349414;3.26317349414
+"B29";"exactamente 200 caracteres: «1+» repetido 99 veces y luego «10»";"1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+10";"0";"1";OK;"109*x + C";109;109
+"B30";"tres funciones";"sin(x)+cos(x)+tan(x)";"0";"1";OK;"-cos(x)+sin(x)-ln(|cos(x)|) + C";1.91679514933;1.91679514933
+"B31";"resta de inversas";"asin(x)-acos(x)";"-1";"1";OK;"x*asin(x)+sqrt(1-x^2)-(x*acos(x)-sqrt(1-x^2)) + C";-3.14159265359;3.45475813825
+"C01";"a = b: integral 0, nota de límites iguales";"3*x^2";"1";"1";OK;"x^3 + C";0;0
+"C02";"a > b: integral −8, área 8, nota de límites invertidos";"3*x^2";"2";"0";OK;"x^3 + C";-8;8
+"C03";"límites extremos permitidos";"x";"-1000000";"1000000";OK;"x^2/2 + C";0;1e+12
+"C04";"resultado grande: notación científica";"x";"0";"1000000";OK;"x^2/2 + C";500000000000;500000000000
+"C05";"notación científica en el límite";"x";"0";"1e6";OK;"x^2/2 + C";500000000000;500000000000
+"C06";"signo + explícito";"x";"+1";"2";OK;"x^2/2 + C";1.5;1.5
+"C07";"decimales .5 y 2.";"x";".5";"2.";OK;"x^2/2 + C";1.875;1.875
+"C08";"espacios alrededor de los límites";"x";" 0 ";" 2 ";OK;"x^2/2 + C";2;2
+"C09";"menos cero";"x";"-0";"0";OK;"x^2/2 + C";0;0
+"C10";"intervalo diminuto";"x";"0.000001";"0.000002";OK;"x^2/2 + C";1.5e-12;1.5e-12
+"C11";"número que se redondea a 0";"x";"1e-400";"1";OK;"x^2/2 + C";0.5;0.5
+"C12";"fuera del rango permitido (L5)";"x";"1000000.1";"0";ENTRADA_LIMITE_A;;;
+"C13";"fuera del rango permitido (L5)";"x";"0";"1e7";ENTRADA_LIMITE_B;;;
+"C14";"infinito (L4)";"x";"1e400";"0";ENTRADA_LIMITE_A;;;
+"C15";"coma decimal (L2)";"x";"1,5";"2";ENTRADA_LIMITE_A;;;
+"C16";"vacío (L1)";"x";"";"2";ENTRADA_LIMITE_A;;;
+"C17";"solo espacios (L1)";"x";"0";"   ";ENTRADA_LIMITE_B;;;
+"C18";"texto (L3)";"x";"abc";"2";ENTRADA_LIMITE_A;;;
+"C19";"pi no se acepta (L3)";"x";"pi";"2";ENTRADA_LIMITE_A;;;
+"C20";"NaN (L3)";"x";"NaN";"2";ENTRADA_LIMITE_A;;;
+"C21";"Infinity (L3)";"x";"0";"Infinity";ENTRADA_LIMITE_B;;;
+"C22";"hexadecimal (L3)";"x";"0x10";"2";ENTRADA_LIMITE_A;;;
+"C23";"sufijo de Java (L3)";"x";"2d";"3";ENTRADA_LIMITE_A;;;
+"C24";"doble signo (L3)";"x";"--1";"2";ENTRADA_LIMITE_A;;;
+"C25";"dos puntos (L3)";"x";"1.2.3";"2";ENTRADA_LIMITE_A;;;
+"C26";"solo un signo (L3)";"x";"-";"2";ENTRADA_LIMITE_A;;;
+"C27";"fracción (L3)";"x";"2/3";"1";ENTRADA_LIMITE_A;;;
+"C28";"los dos límites mal: se marca solo a";"x";"abc";"xyz";ENTRADA_LIMITE_A;;;
+"C29";"expresión y límite mal: se marca solo f(x)";"y";"abc";"2";ENTRADA_EXPRESION;;;
+"D01";"tres raíces: integral 0, área 5";"x^3-x";"-2";"2";OK;"x^4/4-x^2/2 + C";1.93511873192e-16;5
+"D02";"dos raíces";"x^2-1";"-2";"2";OK;"x^3/3-x + C";1.33333333333;4
+"D03";"raíz irracional √2";"x^2-2";"0";"2";OK;"x^3/3-2*x + C";-1.33333333333;2.43790283415
+"D04";"integral 0, área 1";"x";"-1";"1";OK;"x^2/2 + C";7.17620407542e-17;1
+"D05";"límites invertidos: área sigue ≥ 0";"x^3";"2";"-1";OK;"x^4/4 + C";-3.75;4.25
+"D06";"64 cambios de signo";"cos(x)";"-100";"100";OK;"sin(x) + C";-1.01273128222;126.987193528
+"D07";"2228 cambios de signo";"sin(x)";"0";"7000";OK;"-cos(x) + C";0.137986565705;4456.13794759
+"D08";"2228 cambios de signo";"cos(x)";"0";"7000";OK;"sin(x) + C";0.506885429949;4456.50692246
+"D09";"cinco raíces";"x^5-5*x^3+4*x";"-2.5";"2.5";OK;"x^6/6-5*x^4/4+2*x^2 + C";2.67841304691e-15;17.7239583333
+"D10";"raíces no exactas (muestreo)";"sin(x)+0.5";"0";"10";OK;"-cos(x)+0.5*x + C";6.83907152908;8.21106257238
+"D11";"raíces no exactas en intervalo largo";"sin(x)+0.5";"0";"1000";OK;"-cos(x)+0.5*x + C";500.437620924;718.220945491
+"D12";"polinomio de grado alto";"x^20-1";"-2";"2";OK;"x^21/21-x + C";199724.761905;199728.571429
+"D13";"tan cambia de signo en 0";"tan(x)";"-1";"0.5";OK;"-ln(|cos(x)|) + C";-0.485042229942;0.746210711651
+"D14";"raíces −3 y 2";"x^2+x-6";"-4";"3";OK;"x^3/3+x^2/2-6*x + C";-15.1666666667;26.5000000437
+"D15";"demasiado largo: área «No disponible»";"sin(x)+0.5";"0";"100000";ND;"-cos(x)+0.5*x + C";50001.9993608;
+"D16";"demasiados cambios de signo: área «No disponible»";"sin(x)";"0";"1000000";ND;"-cos(x) + C";0.0632478724706;
+"E01";"singularidad en 0 dentro del intervalo";"x^(-1)";"-1";"1";DOMINIO;;;
+"E02";"singularidad en el límite inferior";"x^(-1)";"0";"1";DOMINIO;;;
+"E03";"singularidad en el límite superior";"x^(-1)";"-1";"0";DOMINIO;;;
+"E04";"x⁻² en 0";"x^(-2)";"-1";"1";DOMINIO;;;
+"E05";"x⁻² en el límite";"x^(-2)";"0";"1";DOMINIO;;;
+"E06";"x⁻³ (impar: la regla de Barrow daría 0)";"x^(-3)";"-1";"1";DOMINIO;;;
+"E07";"constante por singularidad";"2*x^(-1)";"-1";"1";DOMINIO;;;
+"E08";"suma con singularidad";"x^(-1)+1";"-1";"1";DOMINIO;;;
+"E09";"tan en π/2";"tan(x)";"0";"2";DOMINIO;;;
+"E10";"π/2 ≈ 1.5707963 está justo después de a";"tan(x)";"1.570796";"2";DOMINIO;;;
+"E11";"tan en −π/2";"tan(x)";"-2";"0";DOMINIO;;;
+"E12";"8000 singularidades (intervalo largo)";"tan(x)";"0";"12566.370614";DOMINIO;;;
+"E13";"suma con tan";"tan(x)+x";"0";"2";DOMINIO;;;
+"E14";"asin fuera de [−1, 1]";"asin(x)";"0";"2";DOMINIO;;;
+"E15";"asin fuera de [−1, 1] por la izquierda";"asin(x)";"-1.5";"0";DOMINIO;;;
+"E16";"apenas fuera de 1";"asin(x)";"0.5";"1.0000001";DOMINIO;;;
+"E17";"acos fuera de [−1, 1]";"acos(x)";"1";"2";DOMINIO;;;
+"E18";"acosh requiere x ≥ 1";"acosh(x)";"0";"2";DOMINIO;;;
+"E19";"acosh por debajo de 1";"acosh(x)";"0.5";"1";DOMINIO;;;
+"E20";"atanh(1) no está definida";"atanh(x)";"0";"1";DOMINIO;;;
+"E21";"atanh(−1) no está definida";"atanh(x)";"-1";"0";DOMINIO;;;
+"E22";"atanh fuera de (−1, 1)";"atanh(x)";"1";"2";DOMINIO;;;
+"E23";"2¹¹⁰⁰ desborda: valor demasiado grande";"2^x";"0";"1100";DOMINIO;;;
+"E24";"cosh(1000) desborda";"cosh(x)";"0";"1000";DOMINIO;;;
+"E25";"x¹⁰¹ desborda";"x^100";"0";"1000000";DOMINIO;;;
+"E26";"grande pero representable (≈ 9.09e+64)";"x^10";"0";"1000000";OK;"x^11/11 + C";9.09090909091e+64;9.09090909091e+64
+"E27";"2⁻¹⁰⁰⁰⁰⁰⁰ se redondea a 0: integral ≈ 1/ln 2";"2^x";"-1000000";"0";OK;"2^x/ln(2) + C";1.44269504089;1.44269504089
+"E28";"muy cerca de 0 pero sin incluirlo";"x^(-1)";"0.000001";"1";OK;"ln(|x|) + C";13.815510558;13.815510558
+"F01";"producto de funciones";"x*sin(x)";"0";"3.141593";NO_SOPORTADA;;;
+"F02";"potencia de función";"sin(x)^2";"0";"3.141593";NO_SOPORTADA;;;
+"F03";"regla de la cadena";"sin(2*x)";"0";"1.570796";NO_SOPORTADA;;;
+"F04";"potencia de binomio";"(x+1)^2";"0";"1";NO_SOPORTADA;;;
+"F05";"producto trigonométrico";"sin(x)*cos(x)";"0";"1.570796";NO_SOPORTADA;;;
+"F06";"división 1/x";"1/x";"1";"2";NO_SOPORTADA;;;
+"F07";"exponente no entero";"x^0.5";"0";"4";NO_SOPORTADA;;;
+"F08";"exponente fraccionario";"x^(1/2)";"0";"4";NO_SOPORTADA;;;
+"F09";"exp";"exp(x)";"0";"1";NO_SOPORTADA;;;
+"F10";"logaritmo natural";"ln(x)";"1";"2";NO_SOPORTADA;;;
+"F11";"log (se normaliza a ln)";"log(x)";"1";"2";NO_SOPORTADA;;;
+"F12";"la constante e sola";"e";"0";"1";NO_SOPORTADA;;;
+"F13";"exponente negativo de x";"2^-x";"0";"1";NO_SOPORTADA;;;
+"F14";"x elevado a x";"x^x";"1";"2";NO_SOPORTADA;;;
+"F15";"composición";"sin(cos(x))";"0";"1";NO_SOPORTADA;;;
+"G01";"vacía (E1)";"";"0";"1";ENTRADA_EXPRESION;;;
+"G02";"solo espacios (E1)";"   ";"0";"1";ENTRADA_EXPRESION;;;
+"G03";"201 caracteres (E2): «x+» repetido 100 veces y luego «x»";"x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x";"0";"1";ENTRADA_EXPRESION;;;
+"G04";"signo igual (E3)";"x=2";"0";"1";ENTRADA_EXPRESION;;;
+"G05";"símbolo de raíz (E3)";"√x";"0";"1";ENTRADA_EXPRESION;;;
+"G06";"superíndice (E3)";"x²";"0";"1";ENTRADA_EXPRESION;;;
+"G07";"coma decimal (E4)";"1,5*x";"0";"1";ENTRADA_EXPRESION;;;
+"G08";"dos puntos seguidos (E5)";"1..2";"0";"1";ENTRADA_EXPRESION;;;
+"G09";"dos puntos (E5)";"1.2.3";"0";"1";ENTRADA_EXPRESION;;;
+"G10";"solo un punto (E5)";".";"0";"1";ENTRADA_EXPRESION;;;
+"G11";"otra variable (E6)";"y+1";"0";"1";ENTRADA_EXPRESION;;;
+"G12";"función desconocida (E6)";"foo(x)";"0";"1";ENTRADA_EXPRESION;;;
+"G13";"sqrt no está en la lista (E6)";"sqrt(x)";"0";"1";ENTRADA_EXPRESION;;;
+"G14";"v simbólica (E6)";"v(x)";"0";"1";ENTRADA_EXPRESION;;;
+"G15";"pi no se acepta (E6)";"pi";"0";"1";ENTRADA_EXPRESION;;;
+"G16";"senh no está en la lista (E6)";"senh(x)";"0";"1";ENTRADA_EXPRESION;;;
+"G17";"palabras pegadas: sugiere sin(x) (E7)";"sinx";"0";"1";ENTRADA_EXPRESION;;;
+"G18";"xx pegadas (E7)";"xx";"0";"1";ENTRADA_EXPRESION;;;
+"G19";"función sin paréntesis (E8)";"sin x";"0";"1";ENTRADA_EXPRESION;;;
+"G20";"función sin paréntesis (E8)";"ln^2";"0";"1";ENTRADA_EXPRESION;;;
+"G21";"falta cerrar (E9)";"(x+1";"0";"1";ENTRADA_EXPRESION;;;
+"G22";"sobra cierre (E9)";"x+1)";"0";"1";ENTRADA_EXPRESION;;;
+"G23";"paréntesis vacíos (E10)";"sin()";"0";"1";ENTRADA_EXPRESION;;;
+"G24";"solo paréntesis (E10)";"()";"0";"1";ENTRADA_EXPRESION;;;
+"G25";"doble asterisco (E11)";"x**2";"0";"1";ENTRADA_EXPRESION;;;
+"G26";"operadores seguidos (E11)";"x+*2";"0";"1";ENTRADA_EXPRESION;;;
+"G27";"doble menos (E11)";"--x";"0";"1";ENTRADA_EXPRESION;;;
+"G28";"empieza con * (E12)";"*x";"0";"1";ENTRADA_EXPRESION;;;
+"G29";"+ después de ( (E12)";"(+x)";"0";"1";ENTRADA_EXPRESION;;;
+"G30";"termina en operador (E13)";"3*x^";"0";"1";ENTRADA_EXPRESION;;;
+"G31";"operador antes de ) (E13)";"(x+)";"0";"1";ENTRADA_EXPRESION;;;
+"G32";"dos números sin operador (E14)";"2 3";"0";"1";ENTRADA_EXPRESION;;;
+"G33";"número después de x (E14)";"x2";"0";"1";ENTRADA_EXPRESION;;;
+"G34";"número después de ) (E14)";"(x+1)2";"0";"1";ENTRADA_EXPRESION;;;
+"G35";"dos variables separadas";"x y";"0";"1";ENTRADA_EXPRESION;;;
+"G36";"potencia incompleta";"x^";"0";"1";ENTRADA_EXPRESION;;;
