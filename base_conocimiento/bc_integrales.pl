@@ -41,6 +41,11 @@ i(F-G, X, (RF)-(RG)) :-
     i(F, X, RF),
     i(G, X, RG).
 
+% Negación: ∫ -f dx = -∫ f dx. Es c) y f) con k = -1: -x = (-1)*x. Prolog lee
+% "-x" como -(x), no como un producto, así que la regla de C*F no la cubre.
+i(-F, X, -(R)) :-
+    i(F, X, R).
+
 i(C^F, X, C^X/ln(C)) :-
     number(C),
     C > 0,

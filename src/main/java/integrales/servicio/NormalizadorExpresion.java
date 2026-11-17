@@ -65,7 +65,31 @@ public final class NormalizadorExpresion {
         s = DIGITO_ANTES.matcher(s).replaceAll("$1*");
         s = CIERRE_ANTES.matcher(s).replaceAll(")*");
         s = X_ANTES.matcher(s).replaceAll("x*");
-        return envolverNegativos(s);
+        return separarSignoDeBase(envolverNegativos(s));
+    }
+
+    /**
+     * Un {@code -} unario seguido de un número que es base de una potencia: {@code -2^x} → {@code -(2^x)}.
+     * Prolog pega el signo al número y leería {@code (-2)^x}; en matemáticas {@code -2^x} es
+     * {@code -(2^x)}. Con {@code x} u otra letra no hace falta: {@code -x^2} ya se lee {@code -(x^2)}.
+     */
+    private static String separarSignoDeBase(String s) {
+        StringBuilder sb = new StringBuilder(s);
+        for (int i = 0; i + 1 < sb.length(); i++) {
+            boolean unario = i == 0 || sb.charAt(i - 1) == '(' || OPERADORES.indexOf(sb.charAt(i - 1)) >= 0;
+            if (sb.charAt(i) != '-' || !unario || !Character.isDigit(sb.charAt(i + 1))) {
+                continue;
+            }
+            int finNumero = finDeOperando(sb, i + 1);
+            if (finNumero > 0 && finNumero < sb.length() && sb.charAt(finNumero) == '^') {
+                int fin = finDeFactor(sb, i + 1);
+                if (fin > 0) {
+                    sb.insert(fin, ')');
+                    sb.insert(i + 1, '(');
+                }
+            }
+        }
+        return sb.toString();
     }
 
     /**

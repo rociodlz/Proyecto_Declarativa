@@ -96,9 +96,9 @@ id;descripcion;f;a;b;esperado;primitiva;integral;area
 "B14";"número pegado a función";"2sin(x)";"0";"3.141593";OK;"-2*cos(x) + C";4;4
 "B15";"número pegado a paréntesis";"2(x+1)";"0";"1";OK;"x^2+2*x + C";3;3
 "B16";"signo después de operador";"x+-1";"0";"1";OK;"x^2/2-x + C";-0.5;0.5
-"B17";"negación";"-x";"0";"1";NO_SOPORTADA;;;
-"B18";"producto por negativo";"2*-x";"0";"1";NO_SOPORTADA;;;
-"B19";"negación de función";"-sin(x)";"0";"3.141593";NO_SOPORTADA;;;
+"B17";"c) con k = −1: negación";"-x";"0";"1";OK;"-x^2/2 + C";-0.5;0.5
+"B18";"producto por negativo";"2*-x";"0";"1";OK;"-x^2 + C";-1;1
+"B19";"f) con k = −1: negación de función";"-sin(x)";"0";"3.141593";OK;"cos(x) + C";-2;2
 "B20";"constante a la derecha";"x*3";"0";"1";NO_SOPORTADA;;;
 "B21";"división entre constante";"x/2";"0";"2";NO_SOPORTADA;;;
 "B22";"paréntesis pegados";"(x+1)(x-1)";"0";"1";NO_SOPORTADA;;;
@@ -111,6 +111,14 @@ id;descripcion;f;a;b;esperado;primitiva;integral;area
 "B29";"exactamente 200 caracteres: «1+» repetido 99 veces y luego «10»";"1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+10";"0";"1";OK;"109*x + C";109;109
 "B30";"tres funciones";"sin(x)+cos(x)+tan(x)";"0";"1";OK;"-cos(x)+sin(x)-ln(|cos(x)|) + C";1.91679514933;1.91679514933
 "B31";"resta de inversas";"asin(x)-acos(x)";"-1";"1";OK;"x*asin(x)+sqrt(1-x^2)-(x*acos(x)-sqrt(1-x^2)) + C";-3.14159265359;3.45475813825
+"B32";"negación en intervalo simétrico";"-x";"-1";"1";OK;"-x^2/2 + C";-7.17620407542e-17;1
+"B33";"−(x²), no (−x)²";"-x^2";"0";"1";OK;"-x^3/3 + C";-0.333333333333;0.333333333333
+"B34";"negación de un paréntesis";"-(x+1)";"0";"1";OK;"- (x^2/2+x) + C";-1.5;1.5
+"B35";"−(2ˣ), no (−2)ˣ";"-2^x";"0";"1";OK;"- (2^x/ln(2)) + C";-1.44269504089;1.44269504089
+"B36";"producto por −(2ˣ)";"2*-2^x";"0";"1";OK;"-2*(2^x/ln(2)) + C";-2.88539008178;2.88539008178
+"B37";"negación de eˣ";"-e^x";"0";"1";OK;"-e^x + C";-1.71828182846;1.71828182846
+"B38";"negación de tan";"-tan(x)";"0";"1";OK;"ln(|cos(x)|) + C";-0.615626470386;0.615626470386
+"B39";"resta de una negación";"x-(-x)";"0";"1";OK;"x^2/2- -x^2/2 + C";1;1
 "C01";"a = b: integral 0, nota de límites iguales";"3*x^2";"1";"1";OK;"x^3 + C";0;0
 "C02";"a > b: integral −8, área 8, nota de límites invertidos";"3*x^2";"2";"0";OK;"x^3 + C";-8;8
 "C03";"límites extremos permitidos";"x";"-1000000";"1000000";OK;"x^2/2 + C";0;1e+12
@@ -189,6 +197,7 @@ id;descripcion;f;a;b;esperado;primitiva;integral;area
 "E29";"e¹⁰⁰⁰ desborda: valor demasiado grande";"e^x";"0";"1000";DOMINIO;;;
 "E30";"e⁷⁰⁹ ≈ 8.2e+307: el mayor que no desborda";"e^x";"0";"709";OK;"e^x + C";8.21840746155e+307;8.21840746155e+307
 "E31";"2¹²⁰⁰ desborda";"2^(3*x)";"0";"400";DOMINIO;;;
+"E32";"la negación no oculta la singularidad";"-x^(-1)";"-1";"1";DOMINIO;;;
 "F01";"producto de funciones";"x*sin(x)";"0";"3.141593";NO_SOPORTADA;;;
 "F02";"potencia de función";"sin(x)^2";"0";"3.141593";NO_SOPORTADA;;;
 "F03";"regla de la cadena";"sin(2*x)";"0";"1.570796";NO_SOPORTADA;;;

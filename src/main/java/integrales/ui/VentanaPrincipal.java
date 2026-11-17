@@ -336,8 +336,8 @@ public class VentanaPrincipal extends JFrame {
             • a^u con u lineal:  2^(3*x),  e^(-x),  3^(2*x-1)
             • sin, cos, tan, asin, acos, atan, sinh, cosh, tanh, asinh, acosh, atanh, \
             con argumento exactamente x:  sin(x),  atanh(x)
-            • Sumas y restas de las anteriores, y su producto por una constante escrita \
-            a la izquierda:  3*x^2 + 2*cos(x)
+            • Sumas y restas de las anteriores, su negación (-x, -sin(x)) y su producto \
+            por una constante escrita a la izquierda:  3*x^2 + 2*cos(x)
             Las funciones trigonométricas usan radianes. Alias aceptados:  sen, sh, \
             arcsin, arccos, arctan, arcsinh, arccosh, arctanh.
 
@@ -349,7 +349,7 @@ public class VentanaPrincipal extends JFrame {
             OTRAS LIMITACIONES
             No se integran productos de funciones (x*sin(x)), funciones de un argumento \
             distinto de x (sin(2*x)), la constante a la derecha (sin(x)*3), divisiones \
-            (1/x, x/2), la negación (-x) ni potencias no enteras (x^0.5).""";
+            (1/x, x/2) ni potencias no enteras (x^0.5).""";
 
     static final String TEXTO_ACERCA_DE = """
             Sistema de solución de integrales

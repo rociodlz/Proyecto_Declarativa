@@ -95,6 +95,11 @@ class IntegracionPrologTest {
             "j;  2^(-x);   0;  1;        0.721348;  0.721348",
             "j;  e^(2*x);  0;  1;        3.194528;  3.194528",
             "j;  e^(-x);   0;  1;        0.632121;  0.632121",
+            // Negación: c) y f) con k = -1. -2^x es -(2^x), no (-2)^x.
+            "34; -x;       0;  1;        -0.500000; 0.500000",
+            "—;  2*-x;     0;  1;        -1.000000; 1.000000",
+            "—;  -sin(x);  0;  3.141593; -2.000000; 2.000000",
+            "—;  -2^x;     0;  1;        -1.442695; 1.442695",
     })
     void integralDefinida(String caso, String f, double a, double b, double esperado, double areaEsperada) {
         ResultadoIntegral r = resolver(f, a, b);
@@ -210,7 +215,6 @@ class IntegracionPrologTest {
     @ParameterizedTest(name = "{0}: ∫ {1} → NO_SOPORTADA")
     @CsvSource(delimiter = ';', value = {
             "33;   x*3",
-            "34;   -x",
             "35;   x/2",
             "36;   sin(2*x)",
             "S11;  ln(x)",

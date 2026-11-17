@@ -93,7 +93,7 @@ Estado verificado el 15/11/2026 sobre el commit `1de3224` de `base_conocimiento`
 |---|---|---|---|
 | 32 | `e^x` | **Ya no aplica**: desde el 16/11/2026 se integra (tipo i con a = e). Ver los casos 109 y 110 | — |
 | 33 | `x*3` | La constante debe ir a la izquierda | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
-| 34 | `-x` | No hay regla para la negación | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
+| 34 | `-x` | **Ya no aplica**: desde el 16/11/2026 se integra (c con k = −1). Ver el caso 114 | — |
 | 35 | `x/2` | No hay regla para la división | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
 | 36 | `sin(2*x)` | No hay regla de la cadena | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
 
@@ -252,6 +252,8 @@ Simplificación de la primitiva (contrato, sección 3.1), errores de dominio fre
 | 110 | `exp(x)` | 0 | 1 | Primitiva `exp(x)`; integral 1.718282; área 1.718282 | Automático ✅ (`IntegracionPrologTest` y `PlanDePruebasTest`) |
 | 111 | `2^(3*x)` | 0 | 1 | Tipo j) aᵘ con u lineal: primitiva `2^(3*x)/(3*ln(2))`; integral 3.366288 | Automático ✅ (`IntegracionPrologTest` y `PlanDePruebasTest`) |
 | 112 | `e^(-x)` | 0 | 1 | Tipo j) con a = e: primitiva `-e^ -x` (equivale a −e^(−x)); integral 0.632121 | Automático ✅ (`IntegracionPrologTest` y `PlanDePruebasTest`) |
+| 114 | `-x` | 0 | 1 | Negación (c y f con k = −1): primitiva `-x^2/2`; integral -0.5; área 0.5 | Automático ✅ (`IntegracionPrologTest` y `PlanDePruebasTest`) |
+| 115 | `-2^x` | 0 | 1 | Se lee como −(2ˣ), no (−2)ˣ: integral -1.442695 | Automático ✅ (`IntegracionPrologTest`, `NormalizadorExpresionTest` y `PlanDePruebasTest`) |
 | 113 | `2^(x^2)` | 0 | 1 | `NO_SOPORTADA`: con u no lineal la primitiva no es elemental | Automático ✅ (`IntegracionPrologTest` y `PlanDePruebasTest`) |
 
 En los casos 31, 93, 94 y 95 (sección 3), el motivo del error ahora indica que la función no está definida en algún punto del intervalo, no que el valor sea demasiado grande. Lo comprueba `IntegracionPrologTest.singularidadEnUnExtremoNoEsDesbordamiento`.
