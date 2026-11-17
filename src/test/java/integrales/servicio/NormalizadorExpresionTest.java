@@ -79,6 +79,16 @@ class NormalizadorExpresionTest {
             "atanh(x);atanh(x)",
             "asin(x)+acos(x);asin(x)+acos(x)",
             "exp(x);exp(x)",
+            // Signo de una base numérica: Prolog leería (-2)^x.
+            "-2^x;-(2^x)",
+            "-2^x^2;-(2^x^2)",
+            "3-2^x;3-2^x",
+            "2*-2^x;2*(-(2^x))",
+            "(-3^2);(-(3^2))",
+            "-2*x;-2*x",
+            "-2;-2",
+            "-x^2;-x^2",
+            "x^-2;x^(-2)",
     })
     void normaliza(String entrada, String esperado) {
         assertEquals(esperado, normalizador.normalizar(entrada));
@@ -86,7 +96,7 @@ class NormalizadorExpresionTest {
 
     @ParameterizedTest
     @CsvSource(delimiter = ';', value = {
-            "Sen( 2X ) + LOG(x)", "x^-1", "3x(x+1)", "2*-x^2", "e^-x", "x sin(x)", ".5x", "2.", "arcsinh(x)"})
+            "Sen( 2X ) + LOG(x)", "x^-1", "3x(x+1)", "2*-x^2", "e^-x", "x sin(x)", ".5x", "2.", "arcsinh(x)", "-2^x", "2*-2^x"})
     void esIdempotente(String entrada) {
         String una = normalizador.normalizar(entrada);
         assertEquals(una, normalizador.normalizar(una));

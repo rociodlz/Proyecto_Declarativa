@@ -17,8 +17,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * Resuelve integrales ejecutando {@code swipl <prolog.dir>/puente.pl "<expresion>" <a> <b>}
+ * Resuelve integrales ejecutando {@code swipl <prolog.dir>/puente.pl -- "<expresion>" <a> <b>}
  * ({@code docs/contrato.md}, sección 5).
+ *
+ * <p>El {@code --} separa las opciones de {@code swipl} de los argumentos del programa: sin él, una
+ * expresión que empieza con {@code -} (por ejemplo {@code -x}) se lee como opción. SWI-Prolog 9.0
+ * interpreta {@code -x} como «cargar el estado guardado» y termina con un error fatal. El {@code --}
+ * no llega a {@code puente.pl}: SWI-Prolog lo quita de {@code argv}.
  *
  * <p>Los argumentos se pasan como lista (sin shell). La salida estándar se interpreta con
  * {@link ParserRespuesta}; la salida de error solo se usa para enriquecer los errores {@code INTERNO}.
@@ -64,6 +69,7 @@ public final class ServicioProlog implements ServicioIntegrales {
         List<String> comando = List.of(
                 swipl.get().toString(),
                 puente.toString(),
+                "--",
                 normalizador.normalizar(solicitud.expresion()),
                 numero(solicitud.a()),
                 numero(solicitud.b()));

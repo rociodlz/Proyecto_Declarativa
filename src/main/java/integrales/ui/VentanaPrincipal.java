@@ -332,23 +332,24 @@ public class VentanaPrincipal extends JFrame {
             QUÉ SE PUEDE INTEGRAR
             • Constantes y x:  5,  x
             • Potencias de x con exponente entero:  x^3,  x^-1,  x^-2
-            • a^x con a numérico:  2^x
+            • a^x con a numérico, también e:  2^x,  e^x,  exp(x)
+            • a^u con u lineal:  2^(3*x),  e^(-x),  3^(2*x-1)
             • sin, cos, tan, asin, acos, atan, sinh, cosh, tanh, asinh, acosh, atanh, \
             con argumento exactamente x:  sin(x),  atanh(x)
-            • Sumas y restas de las anteriores, y su producto por una constante escrita \
-            a la izquierda:  3*x^2 + 2*cos(x)
+            • Sumas y restas de las anteriores, su negación (-x, -sin(x)) y su producto \
+            por una constante escrita a la izquierda:  3*x^2 + 2*cos(x)
             Las funciones trigonométricas usan radianes. Alias aceptados:  sen, sh, \
             arcsin, arccos, arctan, arcsinh, arccosh, arctanh.
 
             SE ESCRIBEN, PERO NO SE PUEDEN INTEGRAR
-            exp, ln (log) y la constante e son válidas al escribir, pero la base de \
-            conocimiento no tiene reglas para integrarlas: e^x, exp(x), ln(x) y e \
-            responden «Integral no soportada».
+            ln (log) y la constante e sola son válidas al escribir, pero la base de \
+            conocimiento no tiene reglas para integrarlas: ln(x) y e responden \
+            «Integral no soportada». e^x y exp(x) sí se integran.
 
             OTRAS LIMITACIONES
             No se integran productos de funciones (x*sin(x)), funciones de un argumento \
             distinto de x (sin(2*x)), la constante a la derecha (sin(x)*3), divisiones \
-            (1/x, x/2), la negación (-x) ni potencias no enteras (x^0.5).""";
+            (1/x, x/2) ni potencias no enteras (x^0.5).""";
 
     static final String TEXTO_ACERCA_DE = """
             Sistema de solución de integrales
