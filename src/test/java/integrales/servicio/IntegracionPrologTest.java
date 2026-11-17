@@ -85,6 +85,11 @@ class IntegracionPrologTest {
             "81; acos(x);  -1; 1;        3.141593;  3.141593",
             "82; x^3-x;    -2; 2;        0.000000;  5.000000",
             "83; x^3;      2;  -1;       -3.750000; 4.250000",
+            // Tipo i) con a = e: la regla de a^x exige number(C) y e es un átomo.
+            "32; e^x;      0;  1;        1.718282;  1.718282",
+            "S10; exp(x);  0;  1;        1.718282;  1.718282",
+            "—;  3*e^x;    0;  1;        5.154845;  5.154845",
+            "—;  e^x-1;    -1; 1;        0.350402;  1.086161",
     })
     void integralDefinida(String caso, String f, double a, double b, double esperado, double areaEsperada) {
         ResultadoIntegral r = resolver(f, a, b);
@@ -196,18 +201,17 @@ class IntegracionPrologTest {
         assertFalse(r.detalle().contains("no está definida"), r.detalle());
     }
 
-    // Sección 4 (casos 32-36) y funciones que se escriben pero no se pueden integrar.
+    // Sección 4 (casos 33-36) y funciones que se escriben pero no se pueden integrar.
     @ParameterizedTest(name = "{0}: ∫ {1} → NO_SOPORTADA")
     @CsvSource(delimiter = ';', value = {
-            "32;   e^x",
             "33;   x*3",
             "34;   -x",
             "35;   x/2",
             "36;   sin(2*x)",
-            "S10;  exp(x)",
             "S11;  ln(x)",
             "S12;  log(x)",
             "S13;  e",
+            "S14;  e^(2*x)",
             "M4;   x*sin(x)",
     })
     void integralNoSoportada(String caso, String f) {

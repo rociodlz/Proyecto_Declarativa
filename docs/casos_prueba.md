@@ -91,7 +91,7 @@ Estado verificado el 15/11/2026 sobre el commit `1de3224` de `base_conocimiento`
 
 | # | f(x) | Motivo | Resultado obtenido |
 |---|---|---|---|
-| 32 | `e^x` | `e` no se trata como constante numérica | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
+| 32 | `e^x` | **Ya no aplica**: desde el 16/11/2026 se integra (tipo i con a = e). Ver los casos 109 y 110 | — |
 | 33 | `x*3` | La constante debe ir a la izquierda | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
 | 34 | `-x` | No hay regla para la negación | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
 | 35 | `x/2` | No hay regla para la división | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
@@ -245,8 +245,10 @@ Simplificación de la primitiva (contrato, sección 3.1), errores de dominio fre
 | 103 | `3*sin(x)` | 0 | π | Primitiva `-3*cos(x)`; integral 6 | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
 | 104 | `x+-1` | 0 | 1 | Primitiva `x^2/2-x`; integral -0.5 | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
 | 105 | `2^x` | 0 | 1000000 | `DOMINIO`, motivo «el valor es demasiado grande para calcularse» (desbordamiento, no singularidad) | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
-| 106 | `exp(x)`, `ln(x)`, `log(x)`, `e` | 1 | 2 | `NO_SOPORTADA`: se aceptan al escribir, pero no hay reglas para integrarlas | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
+| 106 | `ln(x)`, `log(x)`, `e`, `e^(2*x)` | 1 | 2 | `NO_SOPORTADA`: se aceptan al escribir, pero no hay reglas para integrarlas | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
 | 107 | `x*sin(x)` (modo real) | 1 | 2 | `NO_SOPORTADA` | Automático ✅ (`IntegracionPrologTest`, SWI-Prolog real) |
 | 108 | `swipl.ruta` apunta a un archivo que no existe | — | — | Franja de aviso al abrir la ventana; la ventana se abre igualmente | Automático ✅ (`MainTest`) |
+| 109 | `e^x` | 0 | 1 | Primitiva `e^x`; integral 1.718282; área 1.718282 (tipo i con a = e) | Automático ✅ (`IntegracionPrologTest` y `PlanDePruebasTest`) |
+| 110 | `exp(x)` | 0 | 1 | Primitiva `exp(x)`; integral 1.718282; área 1.718282 | Automático ✅ (`IntegracionPrologTest` y `PlanDePruebasTest`) |
 
 En los casos 31, 93, 94 y 95 (sección 3), el motivo del error ahora indica que la función no está definida en algún punto del intervalo, no que el valor sea demasiado grande. Lo comprueba `IntegracionPrologTest.singularidadEnUnExtremoNoEsDesbordamiento`.

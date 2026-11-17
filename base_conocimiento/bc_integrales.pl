@@ -47,6 +47,15 @@ i(C^F, X, C^X/ln(C)) :-
     C =\= 1,
     F == X.
 
+% a^x con a = e (número de Euler). En Prolog "e" es un átomo, no un número, así
+% que la regla anterior (number(C)) no la cubre. Como ln(e) = 1, la primitiva es
+% la misma función.
+i(e^F, X, e^X) :-
+    F == X, !.
+
+i(exp(F), X, exp(X)) :-
+    F == X, !.
+
 i(C^u(X), X, pendiente(C^u(X), X)) :-
     number(C),
     C > 0,
