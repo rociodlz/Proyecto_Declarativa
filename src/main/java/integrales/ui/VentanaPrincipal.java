@@ -333,6 +333,7 @@ public class VentanaPrincipal extends JFrame {
             • Constantes y x:  5,  x
             • Potencias de x con exponente entero:  x^3,  x^-1,  x^-2
             • a^x con a numérico, también e:  2^x,  e^x,  exp(x)
+            • a^u con u lineal:  2^(3*x),  e^(-x),  3^(2*x-1)
             • sin, cos, tan, asin, acos, atan, sinh, cosh, tanh, asinh, acosh, atanh, \
             con argumento exactamente x:  sin(x),  atanh(x)
             • Sumas y restas de las anteriores, y su producto por una constante escrita \

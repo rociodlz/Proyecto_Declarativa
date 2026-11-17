@@ -36,7 +36,7 @@ id;descripcion;f;a;b;esperado;primitiva;integral;area
 "A35";"i) base 10";"10^x";"0";"1";OK;"10^x/ln(10) + C";3.90865033713;3.90865033713
 "A36";"i) base 1 (caso borde: 1ˣ = 1)";"1^x";"0";"2";NO_SOPORTADA;;;
 "A37";"i) base e";"e^x";"0";"1";OK;"e^x + C";1.71828182846;1.71828182846
-"A38";"j) aᵘ (sin regla de la cadena)";"2^(3*x)";"0";"1";NO_SOPORTADA;;;
+"A38";"j) aᵘ con u lineal";"2^(3*x)";"0";"1";OK;"2^(3*x)/(3*ln(2)) + C";3.36628842874;3.36628842874
 "A39";"k) sin";"sin(x)";"0";"3.141593";OK;"-cos(x) + C";2;2
 "A40";"k) período completo: integral 0, área 4";"sin(x)";"0";"6.283185";OK;"-cos(x) + C";6.07856998096e-14;4
 "A41";"k) simétrico";"sin(x)";"-1.570796";"1.570796";OK;"-cos(x) + C";3.82030516943e-17;1.99999934641
@@ -72,6 +72,14 @@ id;descripcion;f;a;b;esperado;primitiva;integral;area
 "A71";"i) eˣ en mayúsculas";"E^X";"0";"1";OK;"e^x + C";1.71828182846;1.71828182846
 "A72";"g) suma con eˣ; cambia de signo";"e^x+x";"-1";"1";OK;"e^x+x^2/2 + C";2.35040238729;2.63022317749
 "A73";"exp combinada";"2*exp(x)-x^2";"0";"1";OK;"2*exp(x)-x^3/3 + C";3.10323032358;3.10323032358
+"A74";"j) u = x + 1";"2^(x+1)";"0";"1";OK;"2^(x+1)/ln(2) + C";2.88539008178;2.88539008178
+"A75";"j) u = 2x − 1";"3^(2*x-1)";"0";"1";OK;"3^(2*x-1)/(2*ln(3)) + C";1.21365230217;1.21365230217
+"A76";"j) u = x/2";"2^(x/2)";"0";"2";OK;"2^(x/2)/(0.5*ln(2)) + C";2.88539008178;2.88539008178
+"A77";"j) base entre 0 y 1";"0.5^(2*x)";"0";"1";OK;"0.5^(2*x)/(2*ln(0.5)) + C";0.541010640333;0.541010640333
+"A78";"j) e con u = −x";"e^(-x)";"0";"1";OK;"-e^ -x + C";0.632120558829;0.632120558829
+"A79";"j) u con pendiente negativa";"2^(-3*x)";"0";"1";OK;"2^(-3*x)/(-3*ln(2)) + C";0.420786053593;0.420786053593
+"A80";"f) + j) constante por aᵘ";"3*2^(3*x)";"0";"1";OK;"3*(2^(3*x)/(3*ln(2))) + C";10.0988652862;10.0988652862
+"A81";"j) con multiplicación implícita";"2^(3x)";"0";"1";OK;"2^(3*x)/(3*ln(2)) + C";3.36628842874;3.36628842874
 "B01";"multiplicación implícita número·x";"3x^2";"0";"2";OK;"x^3 + C";8;8
 "B02";"espacios por todos lados";" 3 * x ^ 2 ";"0";"2";OK;"x^3 + C";8;8
 "B03";"espacio como multiplicación";"3 x^2";"0";"2";OK;"x^3 + C";8;8
@@ -149,6 +157,7 @@ id;descripcion;f;a;b;esperado;primitiva;integral;area
 "D15";"demasiado largo: área «No disponible»";"sin(x)+0.5";"0";"100000";ND;"-cos(x)+0.5*x + C";50001.9993608;
 "D16";"demasiados cambios de signo: área «No disponible»";"sin(x)";"0";"1000000";ND;"-cos(x) + C";0.0632478724706;
 "D17";"eˣ − 1 cambia de signo en 0";"e^x-1";"-1";"1";OK;"e^x-x + C";0.350402387288;1.08616126963
+"D18";"e^(x/2) − 1 cambia de signo en 0";"e^(x/2)-1";"-1";"1";OK;"e^(x/2)/0.5-x + C";0.084381221975;0.510503860826
 "E01";"singularidad en 0 dentro del intervalo";"x^(-1)";"-1";"1";DOMINIO;;;
 "E02";"singularidad en el límite inferior";"x^(-1)";"0";"1";DOMINIO;;;
 "E03";"singularidad en el límite superior";"x^(-1)";"-1";"0";DOMINIO;;;
@@ -179,6 +188,7 @@ id;descripcion;f;a;b;esperado;primitiva;integral;area
 "E28";"muy cerca de 0 pero sin incluirlo";"x^(-1)";"0.000001";"1";OK;"ln(|x|) + C";13.815510558;13.815510558
 "E29";"e¹⁰⁰⁰ desborda: valor demasiado grande";"e^x";"0";"1000";DOMINIO;;;
 "E30";"e⁷⁰⁹ ≈ 8.2e+307: el mayor que no desborda";"e^x";"0";"709";OK;"e^x + C";8.21840746155e+307;8.21840746155e+307
+"E31";"2¹²⁰⁰ desborda";"2^(3*x)";"0";"400";DOMINIO;;;
 "F01";"producto de funciones";"x*sin(x)";"0";"3.141593";NO_SOPORTADA;;;
 "F02";"potencia de función";"sin(x)^2";"0";"3.141593";NO_SOPORTADA;;;
 "F03";"regla de la cadena";"sin(2*x)";"0";"1.570796";NO_SOPORTADA;;;
@@ -191,11 +201,13 @@ id;descripcion;f;a;b;esperado;primitiva;integral;area
 "F10";"logaritmo natural";"ln(x)";"1";"2";NO_SOPORTADA;;;
 "F11";"log (se normaliza a ln)";"log(x)";"1";"2";NO_SOPORTADA;;;
 "F12";"la constante e sola";"e";"0";"1";NO_SOPORTADA;;;
-"F13";"exponente negativo de x";"2^-x";"0";"1";NO_SOPORTADA;;;
+"F13";"j) exponente −x sin paréntesis (soportado)";"2^-x";"0";"1";OK;"2^ -x/ -ln(2) + C";0.721347520444;0.721347520444
 "F14";"x elevado a x";"x^x";"1";"2";NO_SOPORTADA;;;
 "F15";"composición";"sin(cos(x))";"0";"1";NO_SOPORTADA;;;
-"F16";"eᵘ con u ≠ x (regla de la cadena)";"e^(2*x)";"0";"1";NO_SOPORTADA;;;
-"F17";"exp con argumento distinto de x";"exp(2*x)";"0";"1";NO_SOPORTADA;;;
+"F16";"j) eᵘ con u lineal (soportado)";"e^(2*x)";"0";"1";OK;"e^(2*x)/2 + C";3.19452804947;3.19452804947
+"F17";"j) exp con u lineal (soportado)";"exp(2*x)";"0";"1";OK;"exp(2*x)/2 + C";3.19452804947;3.19452804947
+"F18";"aᵘ con u no lineal: sin primitiva elemental";"2^(x^2)";"0";"1";NO_SOPORTADA;;;
+"F19";"eᵘ con u no lineal: sin primitiva elemental";"e^(x^2)";"0";"1";NO_SOPORTADA;;;
 "G01";"vacía (E1)";"";"0";"1";ENTRADA_EXPRESION;;;
 "G02";"solo espacios (E1)";"   ";"0";"1";ENTRADA_EXPRESION;;;
 "G03";"201 caracteres (E2): «x+» repetido 100 veces y luego «x»";"x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x";"0";"1";ENTRADA_EXPRESION;;;

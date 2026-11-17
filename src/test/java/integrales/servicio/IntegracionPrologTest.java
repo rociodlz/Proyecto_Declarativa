@@ -90,6 +90,11 @@ class IntegracionPrologTest {
             "S10; exp(x);  0;  1;        1.718282;  1.718282",
             "—;  3*e^x;    0;  1;        5.154845;  5.154845",
             "—;  e^x-1;    -1; 1;        0.350402;  1.086161",
+            // Tipo j) a^u con u lineal: ∫ a^u dx = a^u / (u'·ln a).
+            "j;  2^(3*x);  0;  1;        3.366288;  3.366288",
+            "j;  2^(-x);   0;  1;        0.721348;  0.721348",
+            "j;  e^(2*x);  0;  1;        3.194528;  3.194528",
+            "j;  e^(-x);   0;  1;        0.632121;  0.632121",
     })
     void integralDefinida(String caso, String f, double a, double b, double esperado, double areaEsperada) {
         ResultadoIntegral r = resolver(f, a, b);
@@ -211,7 +216,8 @@ class IntegracionPrologTest {
             "S11;  ln(x)",
             "S12;  log(x)",
             "S13;  e",
-            "S14;  e^(2*x)",
+            "S14;  2^(x^2)",
+            "S15;  e^(x^2)",
             "M4;   x*sin(x)",
     })
     void integralNoSoportada(String caso, String f) {

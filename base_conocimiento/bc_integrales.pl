@@ -56,6 +56,35 @@ i(e^F, X, e^X) :-
 i(exp(F), X, exp(X)) :-
     F == X, !.
 
+% j) a^u con u lineal en X (u' constante distinta de 0):
+%     ∫ a^u dx = a^u / (u' * ln(a))      ∫ e^u dx = e^u / u'
+% Si u no es lineal (por ejemplo x^2), la primitiva no es elemental y no hay regla.
+i(C^U, X, C^U/(M*ln(C))) :-
+    number(C),
+    C > 0,
+    C =\= 1,
+    derivada_constante(U, X, M), !.
+
+i(e^U, X, e^U/M) :-
+    derivada_constante(U, X, M), !.
+
+i(exp(U), X, exp(U)/M) :-
+    derivada_constante(U, X, M), !.
+
+%   derivada_constante(+U, +X, -M)  U depende de X y su derivada es el número M =\= 0.
+derivada_constante(U, X, 1) :-
+    U == X, !.
+derivada_constante(-U, X, M) :- !,
+    derivada_constante(U, X, M0),
+    M is -M0.
+derivada_constante(U, X, M) :-
+    U \== X,
+    sub_term(S, U), S == X, !,
+    catch(d(U, X, D), _, fail),
+    \+ ( sub_term(S2, D), S2 == X ),
+    catch(M is D, _, fail),
+    M =\= 0.
+
 i(C^u(X), X, pendiente(C^u(X), X)) :-
     number(C),
     C > 0,

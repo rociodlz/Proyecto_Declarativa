@@ -88,8 +88,9 @@ Todas son identidades válidas en todo el dominio de la expresión: no se cancel
 | i) `a^x` con `a` numérico | Existe. 🟡 También con `a = e`: `e^x` y `exp(x)` (reglas agregadas el 16/11/2026, porque en Prolog `e` es un átomo y la regla general exige `number(C)`) |
 | k)–v) sin, cos, tan, asin, acos, atan, sinh, cosh, tanh, asinh, acosh, atanh **con argumento exactamente `x`** | Existe |
 | e) `u`, f) `k*u`, j) `a^u` con `u` simbólica | Devuelve `pendiente(...)`: se trata como no soportada |
+| j) `a^u`, `e^u` y `exp(u)` con `u` **lineal** en `x` (por ejemplo `2^(3*x)`, `e^(-x)`) | 🟡 Existe (16/11/2026): `a^u / (u'·ln a)`, con `u'` calculada con `d/3`. Si `u` no es lineal (`2^(x^2)`), la primitiva no es elemental y responde `NO_SOPORTADA` |
 
-Limitaciones conocidas de `integral/3` (devuelve `false`): `x*k` (constante a la derecha), `-f` (negación), `f/k`, `1/x`, `ln(x)`, `sqrt(x)`, `x^0.5`, `sin(2*x)` y `e^(2*x)` (no hay regla de la cadena). Si se agregan reglas, se coordinará con Henry y se actualizará esta tabla.
+Limitaciones conocidas de `integral/3` (devuelve `false`): `x*k` (constante a la derecha), `-f` (negación), `f/k`, `1/x`, `ln(x)`, `sqrt(x)`, `x^0.5` y `sin(2*x)` (no hay regla de la cadena para las funciones de k a v). Si se agregan reglas, se coordinará con Henry y se actualizará esta tabla.
 
 ## 4. Expresión normalizada (la produce Java, la consume Prolog)
 
@@ -240,7 +241,7 @@ Las pruebas que necesitan `swipl` deben **omitirse** (no fallar) cuando `swipl` 
 | v1 | 15/11/2026 | Primera versión basada en el código real de `base_conocimiento` (`1de3224`). | Henry, Erick y Rocío |
 | v1.1 🟡 | 15/11/2026 | Normalización adicional (4.1), validación de la entrada (12), responsable de normalizar (13), integración de la interfaz con `Main` (14) y controlador (15). | Pendiente |
 | v1.1 🟡 | 16/11/2026 | Archivos obligatorios y error `INTERNO` por base incompleta (2, 7); estados de `bc_evaluacion.pl` y `error(dominio(Motivo), _)` (3); área siempre ≥ 0 o `-` si no es confiable (6, 9.2); detección analítica de singularidades (9.1). | Pendiente |
-| v1.1 🟡 | 16/11/2026 | Reglas `e^x` y `exp(x)` en `bc_integrales.pl` (tipo i con a = e) y plan de pruebas automático `PlanDePruebasTest` (3). | Pendiente |
+| v1.1 🟡 | 16/11/2026 | Reglas `e^x` y `exp(x)` en `bc_integrales.pl` (tipo i con a = e), `a^u` con `u` lineal (tipo j) y plan de pruebas automático `PlanDePruebasTest` (3). | Pendiente |
 | v1.1 🟡 | 16/11/2026 | Simplificación de la primitiva con `simplificar_primitiva/2` (3.1); continuidad antes de evaluar los extremos, para no confundir una singularidad con un desbordamiento (9.1); aviso al abrir si `swipl.ruta` no existe (14.2); estados actualizados a lo que ya está en `main` (2, 3, 4.1, 14.2, 15.6). | Pendiente |
 
 ## 12. 🟡 Propuesta v1.1: validación de la entrada (implementada por Rocío)
