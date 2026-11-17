@@ -1,3 +1,7 @@
+%Míriam Rocío Doñas López 00022423
+%Erick Bladimir Gómez Hernández 00300723
+%Henry Salvador Mauricio Mendoza 00183223
+
 % Variables y valores atomicos
 simplificar(F, F) :-
     var(F), !.
