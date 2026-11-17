@@ -1,7 +1,9 @@
 /*  puente.pl - Punto de entrada que usa Java (docs/contrato.md, secciones 5 a 7).
 
     Uso:
-        swipl base_conocimiento/puente.pl "<expresion_normalizada>" <a> <b>
+        swipl base_conocimiento/puente.pl -- "<expresion_normalizada>" <a> <b>
+
+    El "--" evita que una expresión que empieza con "-" (como -x) se lea como opción de swipl.
 
     Escribe en la salida estándar UNA sola línea:
         OK|<primitiva>|<integral_definida>|<area_geometrica>

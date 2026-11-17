@@ -67,11 +67,12 @@ class ServicioPrologTest {
 
     @Test
     void pasaLosArgumentosComoListaYNormalizados() throws IOException {
-        // Devuelve los argumentos recibidos dentro de la primitiva: $1 = puente, $2 = expresión, $3 = a, $4 = b.
-        Path swipl = swiplFalso("echo 'Warning: ruido' >&2\necho \"OK|[$2][$3][$4]|8.0|-\"");
+        // Devuelve los argumentos recibidos dentro de la primitiva:
+        // $1 = puente, $2 = "--", $3 = expresión, $4 = a, $5 = b.
+        Path swipl = swiplFalso("echo 'Warning: ruido' >&2\necho \"OK|[$2][$3][$4][$5]|8.0|-\"");
         ResultadoIntegral r = resolver(swipl, 5000, "3 X ^ 2");
         assertTrue(r.exito(), String.valueOf(r));
-        assertEquals("[3*x^2][0.0][2.0]", r.primitiva());
+        assertEquals("[--][3*x^2][0.0][2.0]", r.primitiva());
         assertEquals(8.0, r.integralDefinida());
     }
 

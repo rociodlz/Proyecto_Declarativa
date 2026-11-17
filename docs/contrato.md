@@ -122,8 +122,10 @@ Formas que Prolog sí lee sin cambios: `-x`, `(-x+1)`, `-sin(x)`, `x^2.5`, `0.5*
 ## 5. Invocación
 
 ```
-swipl base_conocimiento/puente.pl "<expresion_normalizada>" <a> <b>
+swipl base_conocimiento/puente.pl -- "<expresion_normalizada>" <a> <b>
 ```
+
+- 🟡 El `--` separa las opciones de `swipl` de los argumentos. Sin él, una expresión que empieza con `-` (por ejemplo `-x`) se interpreta como opción; con SWI-Prolog 9.0.4, `-x` termina en un error fatal. SWI-Prolog quita el `--` antes de pasar los argumentos a `puente.pl`.
 
 - `a` y `b` se escriben con punto decimal (`Locale.ROOT`).
 - Java pasa los argumentos como lista (`ProcessBuilder`), sin usar un shell.
