@@ -21,6 +21,7 @@ d(X, X, 1):-
 
 d(X^C, X, C*X^E):-
     variable(X),
+    number(C),
     E is C-1,
     !.
 
@@ -44,6 +45,10 @@ d(F - G, X, DF - DG):-
     !.
 
 
+
+% Negacion unaria
+d(-F, X, -DF) :-
+    d(F, X, DF).
 
 % POTENCIAS Y RAICES
 
@@ -94,6 +99,11 @@ d(e^F, X, e^F*(DF)) :-
 
 d(C^F, X, C^F*ln(C)*(DF)) :-
     number(C),
+    C > 0,
+    C =\= 1,
+    d(F, X, DF).
+
+d(exp(F), X, exp(F)*DF) :-
     d(F, X, DF).
 
 d(ln(F), X, (DF)/F) :-
@@ -101,6 +111,8 @@ d(ln(F), X, (DF)/F) :-
 
 d(log(C,F), X, (DF)/(F*ln(C))) :-
     number(C),
+    C > 0,
+    C =\= 1,
     d(F, X, DF).
 
 
