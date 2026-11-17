@@ -1,3 +1,8 @@
+%Míriam Rocío Doñas López 00022423
+%Erick Bladimir Gómez Hernández 00300723
+%Henry Salvador Mauricio Mendoza 00183223
+
+
 /*  bc_evaluacion.pl - Adaptador entre la base de conocimiento y puente.pl
     (docs/contrato.md, secciones 3 y 9).
 
