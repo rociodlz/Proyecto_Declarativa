@@ -1,3 +1,7 @@
+%Míriam Rocío Doñas López 00022423
+%Erick Bladimir Gómez Hernández 00300723
+%Henry Salvador Mauricio Mendoza 00183223
+
 :- consult('bc_derivadas.pl').
 :- consult('bc_simplificaciones_algebraicas.pl').
 
@@ -68,6 +72,16 @@ i(F^E, X, ln(abs(F))/D) :-
 i(1/F, X, ln(abs(F))/D) :-
     derivada_constante(F, X, D).
 
+% Integral de una expresión dividida entre una constante
+i(F/C, X, R/C) :-
+    number(C),
+    C =\= 0,
+    i(F, X, R).
+
+i(F/C, X, R/C) :-
+    number(C),
+    C =\= 0,
+    i(F, X, R).
 
 
 i(u(X), X, pendiente(u(X), X)).
